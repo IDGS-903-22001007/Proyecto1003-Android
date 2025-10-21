@@ -30,7 +30,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    // Estado simple para navegar entre pantallas + mensaje pendiente para mostrar en login
                     var currentScreen by remember { mutableStateOf("login") }
                     var pendingMessage by remember { mutableStateOf<String?>(null) }
 
