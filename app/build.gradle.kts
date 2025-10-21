@@ -56,11 +56,8 @@ android {
         compose = true
     }
 }
-
+// Archivo: app/build.gradle.kts (bloque `dependencies`)
 dependencies {
-    // 3. SOLUCIÓN: Se eliminaron las dependencias duplicadas.
-    // Ahora solo se usan las referencias del catálogo de versiones (libs).
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -70,13 +67,17 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
-    // Dependencias de red y asincronía (ya no están duplicadas)
-    implementation(libs.retrofit)
-    implementation(libs.converter.gson)
-    implementation(libs.kotlinx.coroutines.android)
+    // Retrofit y conversor Gson
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
-    // 4. SOLUCIÓN: Se eliminó la dependencia incorrecta del plugin de Gradle.
-    // implementation(libs.firebase.appdistribution.gradle) // <-- ¡ELIMINADA!
+    // OkHttp (logging/manejo avanzado)
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
     // Dependencias de Testing
     testImplementation(libs.junit)
@@ -87,3 +88,4 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+
