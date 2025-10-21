@@ -4,7 +4,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient{
-    private const val BASE_URL   = "";
+    private const val BASE_URL   = "https://api.ocr.space/parse/image";
 
     val instace  : Retrofit by lazy{
         Retrofit.Builder()

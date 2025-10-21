@@ -1,4 +1,4 @@
-package com.example.proye_1003
+ package com.example.proye_1003
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -22,14 +22,33 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.proye_1003.data.OcrCaptureScreen
+import com.example.proye_1003.models.OcrViewModel
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun
+
+            onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+
+                androidx.compose.material3.Surface(
+                    modifier = androidx.compose.ui.Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    // Crear el ViewModel
+                    val ocrViewModel: OcrViewModel = viewModel()
+
+                    // Mostrar tu pantalla de captura y OCR
+                    OcrCaptureScreen(viewModel = ocrViewModel)
+                }
+            }
+
+                /*
+                       Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     var currentScreen by remember { mutableStateOf("login") }
                     var pendingMessage by remember { mutableStateOf<String?>(null) }
 
@@ -48,10 +67,11 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
+                 */
             }
         }
     }
-}
+
 
 // LoginScreen ahora con parámetro de navegación y soporte para mensaje inicial
 @Composable
