@@ -1,5 +1,9 @@
-package com.example.proye_1003
+package com.example.proye_1003.data.api
 
+import com.example.proye_1003.data.model.LoginRequest
+import com.example.proye_1003.data.model.LoginResponse
+import com.example.proye_1003.data.model.RegisterRequest
+import com.example.proye_1003.data.model.RegisterResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST

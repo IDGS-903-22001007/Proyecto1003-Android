@@ -1,4 +1,4 @@
-package com.example.proye_1003
+package com.example.proye_1003.data.api
 
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient

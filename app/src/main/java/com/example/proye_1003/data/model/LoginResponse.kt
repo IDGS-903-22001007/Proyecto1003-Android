@@ -1,4 +1,4 @@
-package com.example.proye_1003
+package com.example.proye_1003.data.model
 
 
 
