@@ -1,5 +1,4 @@
-// Kotlin
-package com.example.proye_1003.ui
+package com.example.proye_1003.Auth
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,22 +19,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import com.example.proye_1003.data.model.LoginRequest
-import com.example.proye_1003.data.model.LoginResponse
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proye_1003.R
-import com.example.proye_1003.data.api.RetrofitClient
+import com.example.proye_1003.models.Users
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import retrofit2.Response
-
-// Asegúrate de que R.drawable.fondo_farmacia sea accesible
-// y que las clases de la API (LoginRequest, LoginResponse, RetrofitClient)
-// estén importadas o definidas correctamente.
 
 @Composable
 fun LoginScreen(
-    onNavigateToRegister: () -> Unit,
+    authViewModel: AuthViewLogin= viewModel(),
+    onNavigateToRegister: () -> Unit = {},
+    onLoginSuccess: (Users) -> Unit = {},
     initialMessage: String? = null,
     onMessageShown: () -> Unit = {}
 ) {
@@ -45,6 +38,7 @@ fun LoginScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+    // Mostrar mensaje inicial si viene de registro
     LaunchedEffect(initialMessage) {
         initialMessage?.let {
             snackbarHostState.showSnackbar(it)
@@ -52,8 +46,9 @@ fun LoginScreen(
         }
     }
 
+
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = Color.Transparent
     ) { paddingValues ->
         Box(
@@ -61,24 +56,22 @@ fun LoginScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Fondo de imagen
+            // Fondo
             Image(
                 painter = painterResource(id = R.drawable.fondo_farmacia),
                 contentDescription = "Fondo farmacia",
-                modifier = Modifier
-                    .matchParentSize()
-                    .zIndex(0f),
+                modifier = Modifier.matchParentSize(),
                 contentScale = ContentScale.Crop
             )
 
-            // Scrim (capa de oscurecimiento)
+            // Scrim oscuro
             Box(
                 modifier = Modifier
                     .matchParentSize()
                     .background(Color.Black.copy(alpha = 0.45f))
             )
 
-            // Contenedor principal de Login
+            // Caja del formulario
             Box(
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
@@ -96,7 +89,7 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "Bienvenido a ",
+                        text = "Bienvenido a",
                         color = Color.Black,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
@@ -112,10 +105,9 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
-                        label = { Text("Usuario") },
+                        label = { Text("Correo electrónico") },
                         singleLine = true,
-                        modifier = Modifier
-                            .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF00C853),
                             focusedLabelColor = Color(0xFF00C853)
@@ -139,41 +131,19 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // Botón iniciar sesión con llamada a API usando Retrofit
                     Button(
                         onClick = {
-                            scope.launch {
-                                val emailValue = email
-                                val passwordValue = password
+                            val validEmail = email.contains("@")
+                            val validPassword = password.length >= 6
 
-                                if (emailValue.isBlank() || passwordValue.isBlank()) {
-                                    snackbarHostState.showSnackbar("Introduce correo y contraseña")
-                                    return@launch
-                                }
+                            if (!validEmail) {
+                                scope.launch { snackbarHostState.showSnackbar("Correo inválido") }
+                            } else if (!validPassword) {
+                                scope.launch { snackbarHostState.showSnackbar("Contraseña demasiado corta") }
+                            } else {
 
-                                try {
-                                    // Asume que LoginRequest, LoginResponse y RetrofitClient están accesibles
-                                    val request =
-                                        LoginRequest(user = emailValue, contrasena = passwordValue)
-
-                                    val response: Response<LoginResponse> = withContext(Dispatchers.IO) {
-                                        RetrofitClient.authService.login(request)
-                                    }
-
-                                    if (response.isSuccessful && response.body() != null) {
-                                        val loginResponse = response.body()!!
-                                        // Éxito:
-                                        snackbarHostState.showSnackbar("¡Bienvenido, ${loginResponse.message ?: "Inicio exitoso"}! Token recibido.")
-                                        // TODO: Navegar a la pantalla principal después de un login exitoso
-                                    } else {
-                                        // Fallo de la API: (ej. credenciales incorrectas)
-                                        val code = response.code()
-                                        snackbarHostState.showSnackbar("Error de inicio de sesión: Código $code")
-                                    }
-                                } catch (e: Exception) {
-                                    // Fallo de conexión (red, timeout, etc.):
-                                    snackbarHostState.showSnackbar("Error de conexión: ${e.message}")
-                                    e.printStackTrace()
+                                authViewModel.login(email) { usuario ->
+                                    onLoginSuccess(usuario) // Usuario correcto
                                 }
                             }
                         },
@@ -205,8 +175,11 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    TextButton(onClick = { onNavigateToRegister() }) {
-                        Text(text = "¿No tienes cuenta? Crear cuenta", color = Color(0xFF00C853))
+                    TextButton(onClick = onNavigateToRegister) {
+                        Text(
+                            text = "¿No tienes cuenta? Crear cuenta",
+                            color = Color(0xFF00C853)
+                        )
                     }
                 }
             }

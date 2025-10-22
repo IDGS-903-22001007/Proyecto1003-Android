@@ -56,8 +56,38 @@ android {
         compose = true
     }
 }
-// Archivo: app/build.gradle.kts (bloque `dependencies`)
+
 dependencies {
+    // 3. SOLUCIÓN: Se eliminaron las dependencias duplicadas.
+    // Ahora solo se usan las referencias del catálogo de versiones (libs).
+
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+// OkHttp
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
+// Gson
+    implementation("com.google.code.gson:gson:2.10.1")
+
+    implementation("androidx.activity:activity-compose:1.9.3")
+    implementation("androidx.compose.ui:ui:1.7.4")
+    implementation("androidx.compose.material3:material3:1.3.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
+// --- Retrofit y OkHttp (para OCR API) ---
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+// --- Coil (para mostrar imágenes en Compose) ---
+    implementation("io.coil-kt:coil-compose:2.4.0")
+// --- Corrutinas (para procesos asincrónicos) ---
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+// --- Activity Result API (para abrir galería o cámara) ---
+    implementation("androidx.activity:activity-ktx:1.9.3")
+// --- Optional: Material Icons si los usas ---
+    implementation("androidx.compose.material:material-icons-extended:1.7.4")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -67,17 +97,35 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
-    // Retrofit y conversor Gson
+    // Dependencias de red y asincronía (ya no están duplicadas)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.constraintlayout)
+
+
+    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
-    // OkHttp (logging/manejo avanzado)
-    implementation("com.squareup.okhttp3:okhttp:4.11.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
 
-    // Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+    implementation("androidx.activity:activity-compose:1.9.0")
+// Compose UI
+    implementation("androidx.compose.ui:ui:1.5.2")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.5.2")
+    implementation("androidx.compose.material3:material3:1.2.0")
+// Lifecycle y ViewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+    implementation(libs.androidx.navigation.compose.jvmstubs)
+
+    // 4. SOLUCIÓN: Se eliminó la dependencia incorrecta del plugin de Gradle.
+    // implementation(libs.firebase.appdistribution.gradle) // <-- ¡ELIMINADA!
 
     // Dependencias de Testing
     testImplementation(libs.junit)
@@ -88,4 +136,3 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
-
