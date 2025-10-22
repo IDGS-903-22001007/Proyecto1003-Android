@@ -8,5 +8,5 @@ data class RegisterRequest(
     val usuario: String,
     val direccion: String,
     val contrasena: String,
-    val rol: String = "user" // Asumo que el rol por defecto debe ser 'Cliente'
+    val rol: String = "user"
 )

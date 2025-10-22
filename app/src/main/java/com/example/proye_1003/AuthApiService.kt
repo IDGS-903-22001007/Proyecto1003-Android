@@ -10,8 +10,8 @@ interface AuthApiService {
             @Body request: LoginRequest
         ): Response<LoginResponse>
 
-        @POST("api/Usuarios") // Endpoint: POST /api/Usuarios
+        @POST("api/Usuarios")
         suspend fun registerUser(
-            @Body request: RegisterRequest // Recibirá todos los 8 campos
+            @Body request: RegisterRequest
         ): Response<RegisterResponse>
     }
