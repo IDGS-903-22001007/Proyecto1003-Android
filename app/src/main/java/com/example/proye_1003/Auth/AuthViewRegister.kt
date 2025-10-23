@@ -1,16 +1,15 @@
 package com.example.proye_1003.Auth
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.proye_1003.models.Users
+import com.example.proye_1003.models.RegisterRequest
 import com.example.proye_1003.services.RetrofitClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 class AuthViewRegister : ViewModel() {
 
@@ -25,35 +24,53 @@ class AuthViewRegister : ViewModel() {
         correo: String,
         user: String,
         direccion: String,
-        rol: String = "cliente",
+        contrasena: String,
+        rol: String = "user",
         activo: Boolean = true
     ) {
         viewModelScope.launch {
             try {
-                val fechaActual = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
-
-                val nuevoUsuario = Users(
-                    id = 0, // el backend normalmente genera el ID
+                val requestBody = RegisterRequest(
                     nombre = nombre,
                     apellido = apellido,
                     telefono = telefono,
                     correo = correo,
-                    user = user,
+                    usuario = user,
                     direccion = direccion,
-                    rol = rol,
-                    activo = activo,
-                    fechaCreacion = fechaActual
+                    contrasena = contrasena,
+                    rol = rol
                 )
 
-                val response = RetrofitClient.authService.registerUsuario(nuevoUsuario)
+                val response = RetrofitClient.authService.registerUsuario(requestBody)
+
+                // Registro detallado para depuración
+                Log.d("AuthViewRegister", "Registro request: $requestBody")
+                Log.d("AuthViewRegister", "Registro response code: ${response.code()}")
 
                 if (response.isSuccessful) {
-                    _registerState.value = "Registro exitoso"
+                    val body = response.body()
+                    Log.d("AuthViewRegister", "Registro response body: $body")
+
+                    if (body != null) {
+                        // Usar un mensaje claro y corto para mostrar al usuario
+                        _registerState.value = "Registro exitoso"
+                    } else {
+                        // Respuesta 2xx pero body vacío -> informar con mensaje claro
+                        _registerState.value = "Registro exitoso"
+                    }
                 } else {
-                    _registerState.value = "Error: ${response.message()}"
+                    // Leer body de error para entender detalles
+                    val errorBody = try {
+                        response.errorBody()?.string()
+                    } catch (e: Exception) {
+                        null
+                    }
+                    Log.d("AuthViewRegister", "Registro errorBody: $errorBody")
+                    _registerState.value = "Error (${response.code()}): ${errorBody ?: response.message()}"
                 }
             } catch (e: Exception) {
-                _registerState.value = "Error: ${e.localizedMessage}"
+                Log.e("AuthViewRegister", "Excepción al registrar", e)
+                _registerState.value = "Error de conexión: ${e.localizedMessage}"
             }
         }
     }
@@ -62,4 +79,3 @@ class AuthViewRegister : ViewModel() {
         _registerState.value = null
     }
 }
-
