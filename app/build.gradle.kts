@@ -88,6 +88,8 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
+    //composer
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
 
     // NOTA: Se eliminaron duplicados como:
     // - implementación repetida de coil-compose
