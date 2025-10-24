@@ -31,4 +31,15 @@ object RetrofitClient {
             .build()
             .create(AuthApiService::class.java)
     }
+
+    // ✅ Nuevo servicio para las citas
+    val citaService: CitaService by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+            .create(CitaService::class.java)
+    }
+
 }
