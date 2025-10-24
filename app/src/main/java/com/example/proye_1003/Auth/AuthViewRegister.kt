@@ -43,7 +43,6 @@ class AuthViewRegister : ViewModel() {
 
                 val response = RetrofitClient.authService.registerUsuario(requestBody)
 
-                // Registro detallado para depuración
                 Log.d("AuthViewRegister", "Registro request: $requestBody")
                 Log.d("AuthViewRegister", "Registro response code: ${response.code()}")
 

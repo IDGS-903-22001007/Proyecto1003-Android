@@ -1,4 +1,4 @@
-package com.example.proye_1003
+package com.example.proye_1003.Views
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

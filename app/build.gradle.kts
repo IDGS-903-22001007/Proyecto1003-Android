@@ -88,6 +88,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.compose.runtime.livedata)
 
     // NOTA: Se eliminaron duplicados como:
     // - implementación repetida de coil-compose

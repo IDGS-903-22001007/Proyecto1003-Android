@@ -8,9 +8,6 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface MedicamentoService {
-
-    @GET("api/medicamentos")
-    suspend fun buscarMedicamentos(
-        @Query("nombre") nombre: String
-    ): Response<List<Medicamento>>
+    @GET("Medicamentos")
+    suspend fun getMedicamentos(): Response<List<Medicamento>>
 }

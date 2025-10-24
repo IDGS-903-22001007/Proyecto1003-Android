@@ -1,4 +1,4 @@
-package com.example.proye_1003.Auth
+package com.example.proye_1003.Views
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -29,13 +29,13 @@ import com.example.proye_1003.R
 import com.example.proye_1003.models.LoginRequest // Contiene 'user' y 'contrasena'
 import com.example.proye_1003.models.Users
 import com.example.proye_1003.services.RetrofitClient
-import okhttp3.ResponseBody
 
 @Composable
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     initialMessage: String? = null,
-    onMessageShown: () -> Unit = {}
+    onMessageShown: () -> Unit = {},
+    onLoginSuccess: () -> Unit // <-- este parámetro es obligatorio ahora
 ) {
     // Variables de estado ajustadas a LoginRequest
     var user by remember { mutableStateOf("") }
@@ -44,7 +44,7 @@ fun LoginScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // 🚨 CORRECCIÓN CLAVE: Lógica para mostrar el mensaje de registro (Snackbar)
+    // CORRECCIÓN CLAVE: Lógica para mostrar el mensaje de registro (Snackbar)
     LaunchedEffect(initialMessage) {
         initialMessage?.let {
             snackbarHostState.showSnackbar(it, duration = SnackbarDuration.Long) // Mostrar la Snackbar
@@ -59,7 +59,6 @@ fun LoginScreen(
         Box(
             modifier = Modifier.fillMaxSize().padding(paddingValues)
         ) {
-            // ... (Fondo, Scrim, etc.)
             Image(
                 painter = painterResource(id = R.drawable.fondo_farmacia),
                 contentDescription = "Fondo farmacia",
@@ -124,8 +123,15 @@ fun LoginScreen(
 
                                     if (response.isSuccessful && response.body() != null) {
                                         val usuarioRespuesta = response.body()!!
-                                        snackbarHostState.showSnackbar("¡Bienvenido, ${usuarioRespuesta.nombre ?: "Usuario"}! Inicio exitoso.", duration = SnackbarDuration.Long)
-                                        // TODO: Navegar a la pantalla principal aquí
+
+                                        // Mostrar mensaje de bienvenida
+                                        snackbarHostState.showSnackbar(
+                                            "¡Bienvenido, ${usuarioRespuesta.nombre ?: "Usuario"}! Inicio exitoso.",
+                                            duration = SnackbarDuration.Long
+                                        )
+
+                                        onLoginSuccess() // <-- Esto hace que navegue a OCRScreen
+
                                     } else {
                                         val errorMsg = response.errorBody()?.string() ?: "Credenciales inválidas o error desconocido"
                                         snackbarHostState.showSnackbar("Error ${response.code()}: $errorMsg", duration = SnackbarDuration.Long)
@@ -149,6 +155,7 @@ fun LoginScreen(
                             Text(text = "Iniciar sesión", color = Color.White, fontSize = 18.sp, textAlign = TextAlign.Center)
                         }
                     }
+
 
                     Spacer(modifier = Modifier.height(12.dp))
                     TextButton(onClick = { onNavigateToRegister() }) {

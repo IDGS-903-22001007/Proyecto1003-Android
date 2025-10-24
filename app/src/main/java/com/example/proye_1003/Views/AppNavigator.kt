@@ -1,4 +1,4 @@
-package com.example.proye_1003.data
+package com.example.proye_1003.Views
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -8,9 +8,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import android.net.Uri
 
-import com.example.proye_1003.Auth.RegisterScreen
-import com.example.proye_1003.Auth.LoginScreen
-
 @Composable
 fun AppNavigator(navController: NavHostController) {
     NavHost(
@@ -18,7 +15,7 @@ fun AppNavigator(navController: NavHostController) {
         startDestination = "login"
     ) {
 
-
+        // Pantalla de Login
         composable(
             route = "login?message={message}",
             arguments = listOf(navArgument("message") {
@@ -30,25 +27,24 @@ fun AppNavigator(navController: NavHostController) {
             val message = backStackEntry.arguments?.getString("message")
 
             LoginScreen(
-                onNavigateToRegister = {
-                    navController.navigate("register")
-                },
-
+                onNavigateToRegister = { navController.navigate("register") },
                 initialMessage = message,
-                onMessageShown = {
-                    navController.currentBackStackEntry?.arguments?.remove("message")
+                onMessageShown = { navController.currentBackStackEntry?.arguments?.remove("message") },
+                onLoginSuccess = {
+                    // Navegar directamente a OCRScreen y limpiar el backstack de login
+                    navController.navigate("ocr") {
+                        popUpTo("login") { inclusive = true }
+                    }
                 }
             )
         }
 
-
+        // Pantalla de Registro
         composable("register") {
             RegisterScreen(
                 onRegisterSuccess = { message ->
-                    // Codificar el mensaje para que no rompa la ruta de navegación
                     val encoded = Uri.encode(message ?: "Registro exitoso")
                     navController.navigate("login?message=$encoded") {
-                        // FORZAR recreación de la entrada de Login para que reciba el query param
                         popUpTo("login") { inclusive = true }
                     }
                 },
@@ -56,6 +52,11 @@ fun AppNavigator(navController: NavHostController) {
                     navController.popBackStack()
                 }
             )
+        }
+
+        // Pantalla de OCR
+        composable("ocr") {
+            OcrScreen()
         }
     }
 }

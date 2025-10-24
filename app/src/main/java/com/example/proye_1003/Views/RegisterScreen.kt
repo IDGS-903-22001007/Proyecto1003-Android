@@ -1,4 +1,4 @@
-package com.example.proye_1003.Auth
+package com.example.proye_1003.Views
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -28,7 +28,6 @@ import retrofit2.Response
 import com.example.proye_1003.models.RegisterRequest
 import com.example.proye_1003.models.Users // Importamos Users para la respuesta
 import com.example.proye_1003.services.RetrofitClient
-import okhttp3.ResponseBody
 
 
 @Composable
