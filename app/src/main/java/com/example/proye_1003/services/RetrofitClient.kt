@@ -32,14 +32,13 @@ object RetrofitClient {
             .create(AuthApiService::class.java)
     }
 
-    val medicamentoService: MedicamentoService by lazy {
+    val citaService: CitaService by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
-            .create(MedicamentoService::class.java)
+            .create(CitaService::class.java)
     }
-
 
 }
