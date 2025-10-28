@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import android.net.Uri
+import com.example.proye_1003.views.ChatScreen
 
 @Composable
 fun AppNavigator(navController: NavHostController) {
@@ -55,8 +56,8 @@ fun AppNavigator(navController: NavHostController) {
         }
 
         // Pantalla de OCR
-        composable("ocr") {
-            OcrScreen()
+        composable("chat") {
+            ChatScreen()
         }
     }
 }

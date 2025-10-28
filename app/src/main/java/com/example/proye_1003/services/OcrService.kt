@@ -1,17 +1,16 @@
-package com.example.proye_1003.services
+// services/OCRService.kt
+import android.graphics.Bitmap
+import com.googlecode.tesseract.android.TessBaseAPI
 
 
-import com.example.proye_1003.models.OcrResponse
-import okhttp3.MultipartBody
-import retrofit2.Response
-import retrofit2.http.Multipart
-import retrofit2.http.POST
-import retrofit2.http.Part
 
-interface OcrService {
-    @Multipart
-    @POST("parse/image")
-    suspend fun parseImage(
-        @Part file: MultipartBody.Part
-    ): Response<OcrResponse>
+class OCRService(private val dataPath: String) {
+    private val tess = TessBaseAPI().apply { init(dataPath, "spa") }
+
+    fun procesarImagen(bitmap: Bitmap): String {
+        tess.setImage(bitmap)
+        val resultado = tess.utF8Text
+        tess.clear()
+        return resultado
+    }
 }
