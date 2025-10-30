@@ -8,38 +8,43 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "https://api-farmacia.ngrok.app/api/"
+    // ⚠️ SIN /api al final (termina con /)
+    private const val BASE_URL = "https://api-farmacia.ngrok.app/"
 
-    // 1. Crear el Interceptor de Logging
-    private val loggingInterceptor = HttpLoggingInterceptor().apply {
-        // Muestra el header, body y el estado de la petición
-        setLevel(HttpLoggingInterceptor.Level.BODY)
+    private val logging = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY
     }
 
-    // 2. Añadir el Interceptor al Cliente HTTP
-    private val client = OkHttpClient.Builder()
-        .addInterceptor(loggingInterceptor)
+    private val client: OkHttpClient = OkHttpClient.Builder()
+        .addInterceptor(logging)
         .build()
 
-    private val gson = GsonBuilder().create()
+    private val gson = GsonBuilder()
+        .setLenient()
+        .create()
 
-    val authService: AuthApiService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(client) // Usa el cliente con logging
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .build()
-            .create(AuthApiService::class.java)
-    }
-
-    // ✅ Nuevo servicio para las citas
-    val citaService: CitaService by lazy {
+    // Instancia única de Retrofit
+    private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
-            .create(CitaService::class.java)
     }
 
+    // Exponemos servicios ya tipados
+    val authService: AuthApiService by lazy {
+        retrofit.create(AuthApiService::class.java)
+    }
+
+    val citaService: CitaService by lazy {
+        retrofit.create(CitaService::class.java)
+    }
+
+    val medicamentoService: MedicamentoService by lazy {
+        retrofit.create(MedicamentoService::class.java)
+    }
+
+    // (opcional) Si alguna vez necesitas el retrofit crudo:
+    val retrofitInstance: Retrofit get() = retrofit
 }

@@ -1,38 +1,19 @@
-// Archivo: app/build.gradle.kts
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    // 1. SOLUCIÓN: Mueve el plugin de App Distribution aquí si lo necesitas.
-    // Si no tienes 'firebase-appdistribution-gradle' en tu libs.versions.toml,
-    // puedes añadirlo manualmente o usar la versión hardcodeada.
-    // Ejemplo: id("com.google.firebase.appdistribution") version "5.0.0" apply false
-    // Si ya está en tu toml como `libs.plugins.firebase.appdistribution`, úsalo:
-    // alias(libs.plugins.firebase.appdistribution)
 }
 
 android {
     namespace = "com.example.proye_1003"
     compileSdk = 36
 
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-            excludes += "META-INF/INDEX.LIST"
-            // Si te vuelve a dar el error de DEPENDENCIES, descomenta la siguiente línea:
-            // excludes += "META-INF/DEPENDENCIES"
-        }
-    }
-
     defaultConfig {
         applicationId = "com.example.proye_1003"
         minSdk = 24
-        // 2. SOLUCIÓN: Actualiza targetSdk para que coincida con compileSdk
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -45,58 +26,63 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-    buildFeatures {
-        compose = true
+    kotlinOptions { jvmTarget = "11" }
+
+    buildFeatures { compose = true }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/INDEX.LIST"
+            // Si vuelve a salir, descomenta:
+            // excludes += "META-INF/DEPENDENCIES"
+        }
     }
 }
 
 dependencies {
-    // Usar una única versión de Navigation Compose (consistente)
-    implementation("androidx.navigation:navigation-compose:2.9.5")
-
-    // Retrofit + OkHttp (una sola versión de cada)
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.okhttp3:okhttp:4.11.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
-
-    // Coil (una sola vez)
-    implementation("io.coil-kt:coil-compose:2.4.0")
-
-    // Corrutinas
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
-
-    // Activity / Compose básica (usar BOM para versiones)
-    implementation("androidx.activity:activity-compose:1.9.3")
+    // ---------- Compose: usa BOM para alinear versiones ----------
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.material3)        // <- Material 3 (TopAppBar, etc.)
+    implementation("androidx.activity:activity-compose:1.9.3")
+
+    // Navegación Compose (una sola versión coherente)
+    implementation("androidx.navigation:navigation-compose:2.8.5")
+
+    // ViewModel + coroutines en Compose
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    // Otras dependencias del catálogo (si ya las usas)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+
+    // Retrofit + Gson + OkHttp (versiones actuales y consistentes)
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    // Imágenes en Compose
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
+    // AndroidX básicos (si tu proyecto los usa)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.material)
+
+    // *Opcional* si aún tienes pantallas XML:
     implementation(libs.androidx.constraintlayout)
-    //composer
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+    implementation(libs.androidx.compose.animation.core.lint)
 
-    // NOTA: Se eliminaron duplicados como:
-    // - implementación repetida de coil-compose
-    // - varias versiones de retrofit/okhttp repetidas
-    // - la dependencia "navigation-compose.jvmstubs" (jvmstubs causa duplicados con el runtime)
-    // Si necesitas alguna dependencia que se haya eliminado, re-introducela con una sola versión consistente.
+    // Material (legacy) NO es necesario para Material3; puedes quitarlo si no lo usas:
+    // implementation(libs.material)
 
+    // Test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

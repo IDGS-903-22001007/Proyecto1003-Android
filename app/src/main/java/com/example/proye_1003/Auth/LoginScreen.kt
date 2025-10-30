@@ -15,58 +15,65 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import retrofit2.Response
-
-// Importaciones
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proye_1003.R
-import com.example.proye_1003.models.LoginRequest // Contiene 'user' y 'contrasena'
-import com.example.proye_1003.models.Users
-import com.example.proye_1003.services.RetrofitClient
-import okhttp3.ResponseBody
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
-    initialMessage: String? = null,
-    onMessageShown: () -> Unit = {}
+    initialMessage: String?,
+    onMessageShown: () -> Unit,
+    onLoginSuccess: () -> Unit,
+    vm: AuthViewLogin = viewModel()
 ) {
-    // Variables de estado ajustadas a LoginRequest
     var user by remember { mutableStateOf("") }
-    var contrasena by remember { mutableStateOf("") }
+    var pass by remember { mutableStateOf("") }
+    var loggingIn by remember { mutableStateOf(false) }
 
+    val loginState by vm.loginState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope()               // <- para usar launch en onClick
 
-    // 🚨 CORRECCIÓN CLAVE: Lógica para mostrar el mensaje de registro (Snackbar)
+    // Mensaje que llega desde Register
     LaunchedEffect(initialMessage) {
-        initialMessage?.let {
-            snackbarHostState.showSnackbar(it, duration = SnackbarDuration.Long) // Mostrar la Snackbar
-            onMessageShown() // Notificar al NavHost para que limpie el argumento
+        if (!initialMessage.isNullOrBlank()) {
+            snackbarHostState.showSnackbar(initialMessage)
+            onMessageShown()
+        }
+    }
+
+    // Muestra errores del VM
+    LaunchedEffect(loginState) {
+        val msg = loginState
+        if (!msg.isNullOrBlank() && (msg.startsWith("Error") || msg.contains("incorrecta", true))) {
+            snackbarHostState.showSnackbar(msg)
         }
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }, // Contenedor del Snackbar
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         containerColor = Color.Transparent
     ) { paddingValues ->
         Box(
-            modifier = Modifier.fillMaxSize().padding(paddingValues)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
         ) {
-            // ... (Fondo, Scrim, etc.)
             Image(
                 painter = painterResource(id = R.drawable.fondo_farmacia),
                 contentDescription = "Fondo farmacia",
                 modifier = Modifier.matchParentSize().zIndex(0f),
                 contentScale = ContentScale.Crop
             )
-            Box(modifier = Modifier.matchParentSize().background(Color.Black.copy(alpha = 0.45f)))
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(Color.Black.copy(alpha = 0.45f))
+            )
 
             Box(
                 modifier = Modifier
@@ -74,85 +81,100 @@ fun LoginScreen(
                     .align(Alignment.Center)
                     .zIndex(1f)
                     .shadow(12.dp, RoundedCornerShape(20.dp))
-                    .background(color = Color.White.copy(alpha = 0.95f), shape = RoundedCornerShape(20.dp))
-                    .padding(30.dp)
+                    .background(
+                        color = Color.White.copy(alpha = 0.95f),
+                        shape = RoundedCornerShape(20.dp)
+                    )
+                    .padding(26.dp)
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = "Bienvenido a ", color = Color.Black, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                    Text(text = "Farmacia", color = Color(0xFF00C853), fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(25.dp))
+                    Text(
+                        "Iniciar sesión",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                    Spacer(Modifier.height(16.dp))
 
                     OutlinedTextField(
                         value = user,
                         onValueChange = { user = it },
-                        label = { Text("Usuario") },
+                        label = { Text("Usuario o correo") },
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF00C853), focusedLabelColor = Color(0xFF00C853))
+                        modifier = Modifier.fillMaxWidth()
                     )
-                    Spacer(modifier = Modifier.height(15.dp))
+                    Spacer(Modifier.height(12.dp))
 
                     OutlinedTextField(
-                        value = contrasena,
-                        onValueChange = { contrasena = it },
+                        value = pass,
+                        onValueChange = { pass = it },
                         label = { Text("Contraseña") },
                         singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF00C853), focusedLabelColor = Color(0xFF00C853))
+                        modifier = Modifier.fillMaxWidth()
                     )
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(Modifier.height(18.dp))
 
-                    // Botón iniciar sesión con LÓGICA DE API
                     Button(
                         onClick = {
-                            scope.launch {
-                                if (user.isBlank() || contrasena.isBlank()) {
-                                    snackbarHostState.showSnackbar("Introduce usuario y contraseña")
-                                    return@launch
+                            if (loggingIn) return@Button
+                            if (user.isBlank() || pass.isBlank()) {
+                                // ✅ Usar scope.launch en lugar de LaunchedEffect dentro del onClick
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("Ingresa usuario y contraseña")
                                 }
-                                try {
-                                    val request = LoginRequest(user = user, contrasena = contrasena)
+                                return@Button
+                            }
 
-                                    val response: Response<Users> = withContext(Dispatchers.IO) {
-                                        RetrofitClient.authService.login(request)
-                                    }
-
-                                    if (response.isSuccessful && response.body() != null) {
-                                        val usuarioRespuesta = response.body()!!
-                                        snackbarHostState.showSnackbar("¡Bienvenido, ${usuarioRespuesta.nombre ?: "Usuario"}! Inicio exitoso.", duration = SnackbarDuration.Long)
-                                        // TODO: Navegar a la pantalla principal aquí
-                                    } else {
-                                        val errorMsg = response.errorBody()?.string() ?: "Credenciales inválidas o error desconocido"
-                                        snackbarHostState.showSnackbar("Error ${response.code()}: $errorMsg", duration = SnackbarDuration.Long)
-                                    }
-                                } catch (e: Exception) {
-                                    snackbarHostState.showSnackbar("Error de conexión: ${e.message}", duration = SnackbarDuration.Long)
-                                }
+                            loggingIn = true
+                            vm.login(
+                                user = user.trim(),
+                                password = pass.trim()
+                            ) {
+                                loggingIn = false
+                                onLoginSuccess()
                             }
                         },
-                        modifier = Modifier.fillMaxWidth().height(50.dp),
+                        enabled = !loggingIn,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                         contentPadding = PaddingValues()
                     ) {
                         Box(
-                            modifier = Modifier.fillMaxSize().background(
-                                brush = Brush.horizontalGradient(colors = listOf(Color(0xFF00E676), Color(0xFF00C853))),
-                                shape = RoundedCornerShape(10.dp)
-                            ),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    brush = Brush.horizontalGradient(
+                                        colors = listOf(Color(0xFF00E676), Color(0xFF00C853))
+                                    ),
+                                    shape = RoundedCornerShape(10.dp)
+                                ),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = "Iniciar sesión", color = Color.White, fontSize = 18.sp, textAlign = TextAlign.Center)
+                            Text(
+                                if (loggingIn) "Ingresando..." else "Ingresar",
+                                color = Color.White,
+                                fontSize = 18.sp
+                            )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
-                    TextButton(onClick = { onNavigateToRegister() }) {
-                        Text(text = "¿No tienes cuenta? Crear cuenta", color = Color(0xFF00C853))
+                    Spacer(Modifier.height(10.dp))
+
+                    if (loginState == "loading") {
+                        LinearProgressIndicator(Modifier.fillMaxWidth())
+                    }
+
+                    Spacer(Modifier.height(8.dp))
+
+                    TextButton(onClick = onNavigateToRegister) {
+                        Text("Crear cuenta", color = Color(0xFF00C853))
                     }
                 }
             }
