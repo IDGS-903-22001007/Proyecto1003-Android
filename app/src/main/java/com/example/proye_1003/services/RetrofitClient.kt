@@ -1,37 +1,38 @@
 package com.example.proye_1003.services
 
 import com.example.proye_1003.Auth.AuthApiService
+import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import com.google.gson.GsonBuilder
 
 object RetrofitClient {
+    // ⚠️ SIN /api al final (termina con /)
+    private const val BASE_URL = "https://api-farmacia.ngrok.app/"
 
-    private const val BASE_URL = "https://api-farmacia.ngrok.app/api/"
-
-    // Interceptor para ver logs de peticiones/respuestas
-    private val loggingInterceptor = HttpLoggingInterceptor().apply {
+    private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
-    // Cliente HTTP con interceptor
-    private val client = OkHttpClient.Builder()
-        .addInterceptor(loggingInterceptor)
+    private val client: OkHttpClient = OkHttpClient.Builder()
+        .addInterceptor(logging)
         .build()
 
-    // Configuración de Gson
-    private val gson = GsonBuilder().create()
+    private val gson = GsonBuilder()
+        .setLenient()
+        .create()
 
-    // ✅ Instancia única de Retrofit (aquí estaba el error)
-    private val retrofit: Retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
-        .client(client)
-        .addConverterFactory(GsonConverterFactory.create(gson))
-        .build()
+    // Instancia única de Retrofit
+    private val retrofit: Retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+    }
 
-    // Servicios API
+    // Exponemos servicios ya tipados
     val authService: AuthApiService by lazy {
         retrofit.create(AuthApiService::class.java)
     }
@@ -43,9 +44,7 @@ object RetrofitClient {
     val medicamentoService: MedicamentoService by lazy {
         retrofit.create(MedicamentoService::class.java)
     }
-    val recomendacionService: RecomendacionService by lazy {
-        retrofit.create(RecomendacionService::class.java)
-    }
 
-
+    // (opcional) Si alguna vez necesitas el retrofit crudo:
+    val retrofitInstance: Retrofit get() = retrofit
 }

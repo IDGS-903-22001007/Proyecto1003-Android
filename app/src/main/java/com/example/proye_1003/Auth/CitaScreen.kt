@@ -1,56 +1,77 @@
 package com.example.proye_1003.Auth
 
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.proye_1003.Auth.CitaViewModel
+import androidx.navigation.NavController
+import com.example.proye_1003.models.Cita
+import com.example.proye_1003.models.SesionUsuario
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CitasScreen(
-    idPaciente: Int,
-    onBack: () -> Unit
+    navController: NavController,
+    onNuevaCita: () -> Unit
 ) {
     val viewModel: CitaViewModel = viewModel()
-    val citas by viewModel.citas.collectAsState()
+    val citas by viewModel.citas.collectAsState(initial = emptyList())
+
+    // 🔹 Obtener el id del usuario logueado desde la sesión global
+    val idPaciente = SesionUsuario.idUsuario ?: 0
 
     LaunchedEffect(Unit) {
-        viewModel.cargarCitas(idPaciente)
+        if (idPaciente != 0) {
+            viewModel.cargarCitas(idPaciente)
+        }
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Citas del Paciente #$idPaciente") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
-                    }
-                }
+                title = { Text("Citas de ${SesionUsuario.nombre ?: "Usuario"}") },
             )
-        }
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onNuevaCita,
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Nueva Cita")
+            }
+        },
+        bottomBar = { BottomNavBar(navController = navController) } // 👈 Barra inferior
     ) { padding ->
-        LazyColumn(contentPadding = padding) {
-            items(citas) { cita ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                ) {
-                    Column(Modifier.padding(16.dp)) {
-                        Text("📅 ${cita.fechaCita}")
-                        Text("Tipo: ${cita.tipoConsulta}")
-                        Text("Notas: ${cita.notas ?: "Sin notas"}")
-                        Text("Estatus: ${cita.estatus}")
+        if (citas.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("No hay citas registradas aún")
+            }
+        } else {
+            LazyColumn(contentPadding = padding) {
+                items(items = citas, key = { it.idCita ?: it.hashCode() }) { cita: Cita ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        Column(Modifier.padding(16.dp)) {
+                            Text("📅 Fecha: ${cita.fechaCita}")
+                            Text("Tipo: ${cita.tipoConsulta}")
+                            Text("Notas: ${cita.notas ?: "Sin notas"}")
+                            Text("Estatus: ${cita.estatus ?: "A"}")
+                        }
                     }
                 }
             }

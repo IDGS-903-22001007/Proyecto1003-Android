@@ -9,47 +9,36 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class CitaViewModel: ViewModel() {
-    // Instanciamos el servicio desde el mismo RetrofitClient existente
+class CitaViewModel : ViewModel() {
+
     private val citaService: CitaService by lazy {
-        RetrofitClient.authService as CitaService // ⚠️ Mejoraremos esto abajo
+        RetrofitClient.citaService
     }
 
     private val _citas = MutableStateFlow<List<Cita>>(emptyList())
     val citas: StateFlow<List<Cita>> = _citas
 
+    private val _estado = MutableStateFlow<String?>(null)
+    val estado: StateFlow<String?> = _estado
+
+    /** 🔹 Cargar todas las citas del paciente */
     fun cargarCitas(idPaciente: Int) {
         viewModelScope.launch {
             try {
                 val response = citaService.obtenerCitasPorPaciente(idPaciente)
                 if (response.isSuccessful) {
                     _citas.value = response.body() ?: emptyList()
+                } else {
+                    _estado.value = "❌ Error ${response.code()}: ${response.message()}"
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                _estado.value = "⚠️ Error de conexión: ${e.message}"
             }
         }
     }
 
-    fun agregarCita(cita: Cita) {
-        viewModelScope.launch {
-            try {
-                citaService.registrarCita(cita)
-                cargarCitas(cita.idPaciente)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    fun eliminarCita(idCita: Int, idPaciente: Int) {
-        viewModelScope.launch {
-            try {
-                citaService.eliminarCita(idCita)
-                cargarCitas(idPaciente)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+    /** 🔹 Limpiar citas en memoria (opcional) */
+    fun limpiarCitas() {
+        _citas.value = emptyList()
     }
 }

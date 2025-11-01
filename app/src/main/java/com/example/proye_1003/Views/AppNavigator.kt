@@ -1,4 +1,4 @@
-package com.example.proye_1003.Views
+package com.example.proye_1003.data
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -7,7 +7,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import android.net.Uri
-import com.example.proye_1003.views.ChatScreen
+
+import com.example.proye_1003.Auth.RegisterScreen
+import com.example.proye_1003.Auth.LoginScreen
+import com.example.proye_1003.Auth.MenuScreen
+import com.example.proye_1003.Auth.CitasScreen
+import com.example.proye_1003.Auth.CitaCreateScreen
+import com.example.proye_1003.models.SesionUsuario
+import com.example.proye_1003.medicamentos.MedicamentosListScreen
 
 @Composable
 fun AppNavigator(navController: NavHostController) {
@@ -16,7 +23,7 @@ fun AppNavigator(navController: NavHostController) {
         startDestination = "login"
     ) {
 
-        // Pantalla de Login
+        // 🔹 Login
         composable(
             route = "login?message={message}",
             arguments = listOf(navArgument("message") {
@@ -24,23 +31,23 @@ fun AppNavigator(navController: NavHostController) {
                 type = NavType.StringType
             })
         ) { backStackEntry ->
-
             val message = backStackEntry.arguments?.getString("message")
 
             LoginScreen(
                 onNavigateToRegister = { navController.navigate("register") },
-                initialMessage = message,
-                onMessageShown = { navController.currentBackStackEntry?.arguments?.remove("message") },
                 onLoginSuccess = {
-                    // Navegar directamente a OCRScreen y limpiar el backstack de login
-                    navController.navigate("ocr") {
+                    navController.navigate("menu") {
                         popUpTo("login") { inclusive = true }
                     }
+                },
+                initialMessage = message,
+                onMessageShown = {
+                    navController.currentBackStackEntry?.arguments?.remove("message")
                 }
             )
         }
 
-        // Pantalla de Registro
+        // 🔹 Registro
         composable("register") {
             RegisterScreen(
                 onRegisterSuccess = { message ->
@@ -49,15 +56,36 @@ fun AppNavigator(navController: NavHostController) {
                         popUpTo("login") { inclusive = true }
                     }
                 },
-                onBack = {
-                    navController.popBackStack()
-                }
+                onBack = { navController.popBackStack() }
             )
         }
 
-        // Pantalla de OCR
-        composable("chat") {
-            ChatScreen()
+        // 🔹 Menú principal
+        composable("menu") {
+            MenuScreen(nav = navController)
         }
+
+        // Citas (Lista)
+        composable(route = "citas") {
+            CitasScreen(
+                navController = navController,
+                onNuevaCita = { navController.navigate("citaCreate") }
+            )
+        }
+
+        // 🔹 Crear cita
+        composable("citaCreate") {
+            CitaCreateScreen(
+                navController = navController,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+
+        // Medicamentos (Lista)
+        composable(route = "meds") {
+            MedicamentosListScreen(navController = navController)
+        }
+
     }
 }
