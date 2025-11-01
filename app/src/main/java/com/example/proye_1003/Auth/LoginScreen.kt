@@ -28,12 +28,13 @@ import retrofit2.Response
 import com.example.proye_1003.R
 import com.example.proye_1003.models.LoginRequest
 import com.example.proye_1003.models.Users
+import com.example.proye_1003.models.SesionUsuario
 import com.example.proye_1003.services.RetrofitClient
 
 @Composable
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
-    onLoginSuccess: () -> Unit, // 🚀 Nuevo parámetro para navegación
+    onLoginSuccess: () -> Unit, // 🚀 Navegación tras login exitoso
     initialMessage: String? = null,
     onMessageShown: () -> Unit = {}
 ) {
@@ -77,8 +78,18 @@ fun LoginScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = "Bienvenido a ", color = Color.Black, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                    Text(text = "Farmacia", color = Color(0xFF00C853), fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        text = "Bienvenido a ",
+                        color = Color.Black,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Farmacia",
+                        color = Color(0xFF00C853),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                     Spacer(modifier = Modifier.height(25.dp))
 
                     OutlinedTextField(
@@ -118,14 +129,6 @@ fun LoginScreen(
                                     return@launch
                                 }
 
-                                // ✅ LOGIN LOCAL PARA PRUEBAS
-                                if (user == "test" && contrasena == "1234") {
-                                    snackbarHostState.showSnackbar("¡Bienvenido, $user! (Prueba local)")
-                                    onLoginSuccess() // Navegación a TestScreen
-                                    return@launch
-                                }
-
-                                // OPCIONAL: Login real con API
                                 try {
                                     val request = LoginRequest(user = user, contrasena = contrasena)
                                     val response: Response<Users> = withContext(Dispatchers.IO) {
@@ -134,22 +137,35 @@ fun LoginScreen(
 
                                     if (response.isSuccessful && response.body() != null) {
                                         val usuarioRespuesta = response.body()!!
+
+                                        // ✅ Guardamos el usuario en la sesión global
+                                        SesionUsuario.idUsuario = usuarioRespuesta.id
+                                        SesionUsuario.nombre = usuarioRespuesta.nombre
+                                        SesionUsuario.correo = usuarioRespuesta.correo
+
                                         snackbarHostState.showSnackbar(
-                                            "¡Bienvenido, ${usuarioRespuesta.nombre ?: "Usuario"}! Inicio exitoso.",
+                                            "¡Bienvenido, ${usuarioRespuesta.nombre}! Inicio exitoso.",
                                             duration = SnackbarDuration.Long
                                         )
-                                        onLoginSuccess() // Navegación a TestScreen o pantalla real
+
+                                        // 🚀 Navegar a la siguiente pantalla
+                                        onLoginSuccess()
                                     } else {
                                         val errorMsg = response.errorBody()?.string()
                                             ?: "Credenciales inválidas o error desconocido"
-                                        snackbarHostState.showSnackbar("Error ${response.code()}: $errorMsg", duration = SnackbarDuration.Long)
+                                        snackbarHostState.showSnackbar(
+                                            "Error ${response.code()}: $errorMsg",
+                                            duration = SnackbarDuration.Long
+                                        )
                                     }
                                 } catch (e: Exception) {
                                     snackbarHostState.showSnackbar("Error de conexión: ${e.message}", duration = SnackbarDuration.Long)
                                 }
                             }
                         },
-                        modifier = Modifier.fillMaxWidth().height(50.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                         contentPadding = PaddingValues()
                     ) {
@@ -173,7 +189,10 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(12.dp))
                     TextButton(onClick = { onNavigateToRegister() }) {
-                        Text(text = "¿No tienes cuenta? Crear cuenta", color = Color(0xFF00C853))
+                        Text(
+                            text = "¿No tienes cuenta? Crear cuenta",
+                            color = Color(0xFF00C853)
+                        )
                     }
                 }
             }

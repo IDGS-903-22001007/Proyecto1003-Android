@@ -10,6 +10,11 @@ import android.net.Uri
 
 import com.example.proye_1003.Auth.RegisterScreen
 import com.example.proye_1003.Auth.LoginScreen
+import com.example.proye_1003.Auth.MenuScreen
+import com.example.proye_1003.Auth.CitasScreen
+import com.example.proye_1003.Auth.CitaCreateScreen
+import com.example.proye_1003.models.SesionUsuario
+import com.example.proye_1003.medicamentos.MedicamentosListScreen
 
 @Composable
 fun AppNavigator(navController: NavHostController) {
@@ -17,7 +22,8 @@ fun AppNavigator(navController: NavHostController) {
         navController = navController,
         startDestination = "login"
     ) {
-        // Login con mensaje opcional
+
+        // 🔹 Login
         composable(
             route = "login?message={message}",
             arguments = listOf(navArgument("message") {
@@ -28,11 +34,11 @@ fun AppNavigator(navController: NavHostController) {
             val message = backStackEntry.arguments?.getString("message")
 
             LoginScreen(
-                onNavigateToRegister = {
-                    navController.navigate("register")
-                },
+                onNavigateToRegister = { navController.navigate("register") },
                 onLoginSuccess = {
-                    navController.navigate("testScreen")  // Navegación a tu TestScreen local
+                    navController.navigate("menu") {
+                        popUpTo("login") { inclusive = true }
+                    }
                 },
                 initialMessage = message,
                 onMessageShown = {
@@ -41,7 +47,7 @@ fun AppNavigator(navController: NavHostController) {
             )
         }
 
-        // Registro
+        // 🔹 Registro
         composable("register") {
             RegisterScreen(
                 onRegisterSuccess = { message ->
@@ -50,10 +56,35 @@ fun AppNavigator(navController: NavHostController) {
                         popUpTo("login") { inclusive = true }
                     }
                 },
-                onBack = {
-                    navController.popBackStack()
-                }
+                onBack = { navController.popBackStack() }
             )
+        }
+
+        // 🔹 Menú principal
+        composable("menu") {
+            MenuScreen(nav = navController)
+        }
+
+        // Citas (Lista)
+        composable(route = "citas") {
+            CitasScreen(
+                navController = navController,
+                onNuevaCita = { navController.navigate("citaCreate") }
+            )
+        }
+
+        // 🔹 Crear cita
+        composable("citaCreate") {
+            CitaCreateScreen(
+                navController = navController,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+
+        // Medicamentos (Lista)
+        composable(route = "meds") {
+            MedicamentosListScreen(navController = navController)
         }
 
     }

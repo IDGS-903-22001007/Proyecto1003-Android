@@ -13,17 +13,18 @@ import coil.compose.AsyncImage
 import com.example.proye_1003.models.Medicamento
 import com.example.proye_1003.services.ApiUrls
 import com.example.proye_1003.services.RetrofitClient
+import com.example.proye_1003.Auth.BottomNavBar // 👈 Importamos la barra inferior
 
-@OptIn(ExperimentalMaterial3Api::class) // AssistChip y algunos top bars lo requieren
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MedicamentosListScreen(nav: NavController) {
+fun MedicamentosListScreen(navController: NavController) {
 
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var query by remember { mutableStateOf("") }
     var items by remember { mutableStateOf(listOf<Medicamento>()) }
 
-    // Carga inicial
+    // Carga inicial de medicamentos desde la API
     LaunchedEffect(Unit) {
         try {
             val data = RetrofitClient.medicamentoService.getMedicamentos()
@@ -35,7 +36,7 @@ fun MedicamentosListScreen(nav: NavController) {
         }
     }
 
-    // Filtro simple por nombre / descripción
+    // Filtro de búsqueda
     val filtered = remember(items, query) {
         val t = query.trim()
         if (t.isEmpty()) items
@@ -47,15 +48,19 @@ fun MedicamentosListScreen(nav: NavController) {
     }
 
     Scaffold(
-        topBar = { CenterAlignedTopAppBar(title = { Text("Medicamentos") }) }
+        topBar = { CenterAlignedTopAppBar(title = { Text("💊 Medicamentos") }) },
+        bottomBar = { BottomNavBar(navController = navController) } // 👈 Barra inferior global
     ) { pad ->
-        Column(Modifier.padding(pad).padding(12.dp)) {
-
+        Column(
+            Modifier
+                .padding(pad)
+                .padding(12.dp)
+        ) {
             OutlinedTextField(
                 value = query,
                 onValueChange = { query = it },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Buscar") },
+                label = { Text("Buscar medicamento...") },
                 singleLine = true
             )
 
@@ -75,7 +80,7 @@ fun MedicamentosListScreen(nav: NavController) {
                                 item = m,
                                 onClick = {
                                     val id = m.id ?: return@MedicamentoRow
-                                    nav.navigate("meds/$id")
+                                    navController.navigate("meds/$id")
                                 }
                             )
                         }
@@ -95,8 +100,6 @@ private fun MedicamentoRow(item: Medicamento, onClick: () -> Unit) {
             .clickable(onClick = onClick)
     ) {
         Row(Modifier.padding(12.dp)) {
-
-            // Tu modelo actual usa 'imagenUrl'
             AsyncImage(
                 model = ApiUrls.foto(item.fotoUrl),
                 contentDescription = item.nombre ?: "Medicamento",
@@ -126,7 +129,6 @@ private fun MedicamentoRow(item: Medicamento, onClick: () -> Unit) {
                         AssistChip(onClick = {}, label = { Text("💲 ${"%.2f".format(precio)}") })
                     }
 
-                    // Muestra 'cantidad' o 'stock' (el que tengas en tu data class)
                     val qty = item.cantidad ?: item.cantidad
                     qty?.let { cantidad ->
                         AssistChip(onClick = {}, label = { Text("📦 $cantidad") })

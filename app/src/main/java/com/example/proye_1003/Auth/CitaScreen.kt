@@ -5,43 +5,38 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.proye_1003.models.Cita
+import com.example.proye_1003.models.SesionUsuario
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CitasScreen(
-    idPaciente: Int,
-    onBack: () -> Unit,
+    navController: NavController,
     onNuevaCita: () -> Unit
 ) {
     val viewModel: CitaViewModel = viewModel()
     val citas by viewModel.citas.collectAsState(initial = emptyList())
 
+    // 🔹 Obtener el id del usuario logueado desde la sesión global
+    val idPaciente = SesionUsuario.idUsuario ?: 0
+
     LaunchedEffect(Unit) {
-        viewModel.cargarCitas()
+        if (idPaciente != 0) {
+            viewModel.cargarCitas(idPaciente)
+        }
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Citas del Paciente #$idPaciente") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { viewModel.limpiarCitas() }) {
-                        Text("🗑")
-                    }
-                }
+                title = { Text("Citas de ${SesionUsuario.nombre ?: "Usuario"}") },
             )
         },
         floatingActionButton = {
@@ -51,7 +46,8 @@ fun CitasScreen(
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Nueva Cita")
             }
-        }
+        },
+        bottomBar = { BottomNavBar(navController = navController) } // 👈 Barra inferior
     ) { padding ->
         if (citas.isEmpty()) {
             Box(
