@@ -27,7 +27,7 @@ interface AuthApiService {
     // - Si devuelve el usuario creado: Response<Users>
     // - Si devuelve un wrapper: Response<RegisterResponse>
     @POST("api/Usuarios")
-    suspend fun registerUsuario(@Body usuario: RegisterRequest): Response<RegisterResponse>
+    suspend fun registerUsuario(@Body usuario: RegisterRequest): Response<Users>
     // Si realmente devuelve el Users creado, usa:
     // suspend fun registerUsuario(@Body usuario: RegisterRequest): Response<Users>
 }

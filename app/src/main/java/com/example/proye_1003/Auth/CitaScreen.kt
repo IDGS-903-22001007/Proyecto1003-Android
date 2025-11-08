@@ -28,10 +28,9 @@ fun CitasScreen(
     val idPaciente = SesionUsuario.idUsuario ?: 0
 
     LaunchedEffect(Unit) {
-        if (idPaciente != 0) {
-            viewModel.cargarCitas(idPaciente)
-        }
+        viewModel.cargarCitas()
     }
+
 
     Scaffold(
         topBar = {
@@ -67,7 +66,7 @@ fun CitasScreen(
                             .padding(8.dp)
                     ) {
                         Column(Modifier.padding(16.dp)) {
-                            Text("📅 Fecha: ${cita.fechaCita}")
+                            Text("📅 Fecha: ${cita.fechaHora}")
                             Text("Tipo: ${cita.tipoConsulta}")
                             Text("Notas: ${cita.notas ?: "Sin notas"}")
                             Text("Estatus: ${cita.estatus ?: "A"}")

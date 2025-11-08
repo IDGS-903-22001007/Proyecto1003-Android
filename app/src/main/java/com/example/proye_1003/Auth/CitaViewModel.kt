@@ -22,10 +22,10 @@ class CitaViewModel : ViewModel() {
     val estado: StateFlow<String?> = _estado
 
     /** 🔹 Cargar todas las citas del paciente */
-    fun cargarCitas(idPaciente: Int) {
+    fun cargarCitas() {
         viewModelScope.launch {
             try {
-                val response = citaService.obtenerCitasPorPaciente(idPaciente)
+                val response = citaService.obtenerCitas()
                 if (response.isSuccessful) {
                     _citas.value = response.body() ?: emptyList()
                 } else {
@@ -36,6 +36,7 @@ class CitaViewModel : ViewModel() {
             }
         }
     }
+
 
     /** 🔹 Limpiar citas en memoria (opcional) */
     fun limpiarCitas() {

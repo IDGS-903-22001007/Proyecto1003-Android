@@ -20,9 +20,11 @@ import java.util.*
 fun CitaCreateScreen(
     viewModel: CitaCreateViewModel = viewModel(),
     onBack: () -> Unit = {},
-    navController: androidx.navigation.NavController // 👈 Para incluir la barra de navegación
+    navController: androidx.navigation.NavController
 ) {
     val idPaciente = SesionUsuario.idUsuario ?: 0
+
+    // Campos de formulario
     var dia by remember { mutableStateOf("") }
     var mes by remember { mutableStateOf("") }
     var anio by remember { mutableStateOf("") }
@@ -45,7 +47,7 @@ fun CitaCreateScreen(
                 }
             )
         },
-        bottomBar = { BottomNavBar(navController = navController) } // 👈 Barra inferior visible
+        bottomBar = { BottomNavBar(navController = navController) }
     ) { pad ->
         Column(
             modifier = Modifier
@@ -54,49 +56,50 @@ fun CitaCreateScreen(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // 📅 Fecha dividida en 3 campos
+            // 📅 Fecha dividida en 3 campos (DD/MM/YYYY)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = dia,
-                    onValueChange = { if (it.length <= 2 && it.all { c -> c.isDigit() }) dia = it },
+                    onValueChange = { if (it.length <= 2 && it.all(Char::isDigit)) dia = it },
                     label = { Text("DD") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.weight(1f)
                 )
                 OutlinedTextField(
                     value = mes,
-                    onValueChange = { if (it.length <= 2 && it.all { c -> c.isDigit() }) mes = it },
+                    onValueChange = { if (it.length <= 2 && it.all(Char::isDigit)) mes = it },
                     label = { Text("MM") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.weight(1f)
                 )
                 OutlinedTextField(
                     value = anio,
-                    onValueChange = { if (it.length <= 4 && it.all { c -> c.isDigit() }) anio = it },
+                    onValueChange = { if (it.length <= 4 && it.all(Char::isDigit)) anio = it },
                     label = { Text("YYYY") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.weight(2f)
                 )
             }
 
-            // ⏰ Hora dividida en HH y MM
+            // ⏰ Hora dividida en HH:MM
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = hora,
-                    onValueChange = { if (it.length <= 2 && it.all { c -> c.isDigit() }) hora = it },
+                    onValueChange = { if (it.length <= 2 && it.all(Char::isDigit)) hora = it },
                     label = { Text("HH") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.weight(1f)
                 )
                 OutlinedTextField(
                     value = minuto,
-                    onValueChange = { if (it.length <= 2 && it.all { c -> c.isDigit() }) minuto = it },
+                    onValueChange = { if (it.length <= 2 && it.all(Char::isDigit)) minuto = it },
                     label = { Text("MM") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.weight(1f)
                 )
             }
 
+            // Tipo de consulta
             OutlinedTextField(
                 value = tipoConsulta,
                 onValueChange = { tipoConsulta = it },
@@ -104,6 +107,7 @@ fun CitaCreateScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            // Notas opcionales
             OutlinedTextField(
                 value = notas,
                 onValueChange = { notas = it },
@@ -111,6 +115,7 @@ fun CitaCreateScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            // Botón de guardado
             Button(
                 onClick = {
                     if (
@@ -138,17 +143,21 @@ fun CitaCreateScreen(
                             return@Button
                         }
 
-                        val apiDate =
-                            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).format(fechaHora)
+                        // Formato ISO para enviar al backend (.NET)
+                        val apiDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+                            .format(fechaHora)
 
-                        viewModel.registrarCita(
-                            Cita(
-                                idPaciente = idPaciente,
-                                fechaCita = apiDate,
-                                tipoConsulta = tipoConsulta,
-                                notas = notas
-                            )
+                        val nuevaCita = Cita(
+                            idPaciente = idPaciente,
+                            fechaHora = apiDate,
+                            tipoConsulta = tipoConsulta,
+                            notas = notas.ifBlank { null },
+                            estatus = "A",
+                            duracionMin = 30
                         )
+
+                        viewModel.registrarCita(nuevaCita)
+
                     } else {
                         Toast.makeText(context, "Completa todos los campos requeridos", Toast.LENGTH_SHORT).show()
                     }
@@ -158,10 +167,11 @@ fun CitaCreateScreen(
                 Text("Guardar Cita 💾")
             }
 
+            // Mostrar estado de la API
             estado?.let {
                 Text(
-                    it,
-                    color = if (it.contains("Error")) MaterialTheme.colorScheme.error
+                    text = it,
+                    color = if (it.contains("Error", true)) MaterialTheme.colorScheme.error
                     else MaterialTheme.colorScheme.primary
                 )
             }

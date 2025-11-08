@@ -6,24 +6,30 @@ import retrofit2.http.*
 
 interface CitaService {
 
-    @GET("citas")
-    suspend fun obtenerCitasPorPaciente(
-        @Query("idPaciente") idPaciente: Int
-    ): Response<List<Cita>>
+    // 🔹 GET /api/Citas -> Todas las citas del usuario autenticado (requiere JWT)
+    @GET("api/Citas")
+    suspend fun obtenerCitas(): Response<List<Cita>>
 
-    @POST("citas/registrar")
-    suspend fun registrarCita(
-        @Body cita: Cita
-    ): Response<Cita>
+    // 🔹 GET /api/Citas/{id} -> Cita específica por ID
+    @GET("api/Citas/{id}")
+    suspend fun obtenerCitaPorId(@Path("id") id: Int): Response<Cita>
 
-    @PUT("citas/{idCita}")
+    // 🔹 POST /api/Citas -> Crear nueva cita
+    @POST("api/Citas")
+    suspend fun registrarCita(@Body cita: Cita): Response<Cita>
+
+    // 🔹 PUT /api/Citas/{id} -> Actualizar cita existente
+    @PUT("api/Citas/{id}")
     suspend fun actualizarCita(
-        @Path("idCita") idCita: Int,
+        @Path("id") id: Int,
         @Body cita: Cita
     ): Response<Cita>
 
-    @DELETE("citas/{idCita}")
-    suspend fun eliminarCita(
-        @Path("idCita") idCita: Int
-    ): Response<Unit>
+    // 🔹 DELETE /api/Citas/{id} -> Cancelar cita
+    @DELETE("api/Citas/{id}")
+    suspend fun eliminarCita(@Path("id") id: Int): Response<Unit>
+
+    // 🔹 GET /api/Citas/slots -> Consultar horarios disponibles
+    @GET("api/Citas/slots")
+    suspend fun obtenerSlots(@Query("dia") dia: String): Response<List<Map<String, Any>>>
 }

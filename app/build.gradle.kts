@@ -95,6 +95,8 @@ dependencies {
     implementation("io.github.vanpra.compose-material-dialogs:core:0.9.0")
     implementation("io.github.vanpra.compose-material-dialogs:datetime:0.9.0")
 
+    implementation("androidx.compose.ui:ui-text:1.7.5")
+
     // NOTA: Se eliminaron duplicados como:
     // - implementación repetida de coil-compose
     // - varias versiones de retrofit/okhttp repetidas
