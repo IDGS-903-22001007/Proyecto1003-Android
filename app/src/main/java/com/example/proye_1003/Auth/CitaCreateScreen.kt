@@ -3,6 +3,8 @@ package com.example.proye_1003.Auth
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -12,8 +14,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proye_1003.models.Cita
 import com.example.proye_1003.models.SesionUsuario
-import java.text.SimpleDateFormat
-import java.util.*
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneId
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,31 +29,113 @@ fun CitaCreateScreen(
 ) {
     val idPaciente = SesionUsuario.idUsuario ?: 0
 
-    // Campos de formulario
-    var dia by remember { mutableStateOf("") }
-    var mes by remember { mutableStateOf("") }
-    var anio by remember { mutableStateOf("") }
+    // ------------------------------------------
+    // ESTADOS
+    // ------------------------------------------
+    var fechaTexto by remember { mutableStateOf("") }
+    var fechaSeleccionadaMillis by remember { mutableStateOf<Long?>(null) }
+    var showDatePicker by remember { mutableStateOf(false) }
+
     var hora by remember { mutableStateOf("") }
-    var minuto by remember { mutableStateOf("") }
     var tipoConsulta by remember { mutableStateOf("") }
     var notas by remember { mutableStateOf("") }
 
     val estado by viewModel.estado.collectAsState()
     val context = LocalContext.current
 
+    // ViewModel de horarios
+    val viewModelHoras: CitaHorariosViewModel = viewModel()
+
+    // ------------------------------------------
+    // Rango de fechas permitido
+    // ------------------------------------------
+    val today = LocalDate.now()
+    val maxDate = today.plusMonths(4)
+
+    val datePickerState = rememberDatePickerState(
+        selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                val fecha = Instant.ofEpochMilli(utcTimeMillis)
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate()
+
+                return !fecha.isBefore(today) && !fecha.isAfter(maxDate)
+            }
+        }
+    )
+
+    // ------------------------------------------
+    // DATE PICKER
+    // ------------------------------------------
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    val millis = datePickerState.selectedDateMillis
+                    if (millis != null) {
+
+                        // 🔥 Método seguro de conversión sin desfases
+                        val epochDay = millis / (24L * 60 * 60 * 1000)
+                        val fechaLocal = LocalDate.ofEpochDay(epochDay)
+
+                        fechaSeleccionadaMillis = millis
+
+                        fechaTexto = "%02d/%02d/%04d".format(
+                            fechaLocal.dayOfMonth,
+                            fechaLocal.monthValue,
+                            fechaLocal.year
+                        )
+                    }
+                    showDatePicker = false
+                }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Cancelar")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    // ------------------------------------------
+    // Cuando cambia la fecha → cargar horas disponibles
+    // ------------------------------------------
+    LaunchedEffect(fechaSeleccionadaMillis) {
+        if (fechaSeleccionadaMillis != null) {
+
+            val epochDay = fechaSeleccionadaMillis!! / (24L * 60 * 60 * 1000)
+            val fechaLocal = LocalDate.ofEpochDay(epochDay)
+
+            val fechaISO = "%04d-%02d-%02d".format(
+                fechaLocal.year,
+                fechaLocal.monthValue,
+                fechaLocal.dayOfMonth
+            )
+
+            viewModelHoras.cargarHorasDisponibles(fechaISO)
+        }
+    }
+
+    // ------------------------------------------
+    // UI
+    // ------------------------------------------
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("🩺 Registrar nueva cita") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Text("🔙")
-                    }
+                    IconButton(onClick = onBack) { Text("🔙") }
                 }
             )
         },
-        bottomBar = { BottomNavBar(navController = navController) }
+        bottomBar = { BottomNavBar(navController) }
     ) { pad ->
+
         Column(
             modifier = Modifier
                 .padding(pad)
@@ -56,50 +143,84 @@ fun CitaCreateScreen(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // 📅 Fecha dividida en 3 campos (DD/MM/YYYY)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = dia,
-                    onValueChange = { if (it.length <= 2 && it.all(Char::isDigit)) dia = it },
-                    label = { Text("DD") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.weight(1f)
-                )
-                OutlinedTextField(
-                    value = mes,
-                    onValueChange = { if (it.length <= 2 && it.all(Char::isDigit)) mes = it },
-                    label = { Text("MM") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.weight(1f)
-                )
-                OutlinedTextField(
-                    value = anio,
-                    onValueChange = { if (it.length <= 4 && it.all(Char::isDigit)) anio = it },
-                    label = { Text("YYYY") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.weight(2f)
-                )
-            }
 
-            // ⏰ Hora dividida en HH:MM
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // ------------------------------------------
+            // FECHA
+            // ------------------------------------------
+            OutlinedTextField(
+                value = fechaTexto,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Fecha de la cita") },
+                modifier = Modifier.fillMaxWidth(),
+                trailingIcon = {
+                    IconButton(onClick = { showDatePicker = true }) {
+                        Icon(Icons.Default.DateRange, contentDescription = "Seleccionar fecha")
+                    }
+                }
+            )
+
+            // ------------------------------------------
+            // HORAS DISPONIBLES - DROPDOWN
+            // ------------------------------------------
+            var expandedHoras by remember { mutableStateOf(false) }
+
+            ExposedDropdownMenuBox(
+                expanded = expandedHoras,
+                onExpandedChange = { expandedHoras = it },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
                 OutlinedTextField(
                     value = hora,
-                    onValueChange = { if (it.length <= 2 && it.all(Char::isDigit)) hora = it },
-                    label = { Text("HH") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.weight(1f)
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Hora disponible") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expandedHoras) },
+                    modifier = Modifier.menuAnchor().fillMaxWidth()
                 )
-                OutlinedTextField(
-                    value = minuto,
-                    onValueChange = { if (it.length <= 2 && it.all(Char::isDigit)) minuto = it },
-                    label = { Text("MM") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.weight(1f)
-                )
+
+                ExposedDropdownMenu(
+                    expanded = expandedHoras,
+                    onDismissRequest = { expandedHoras = false }
+                ) {
+                    when {
+                        viewModelHoras.cargando.value -> {
+                            DropdownMenuItem(
+                                text = { Text("Cargando horarios…") },
+                                onClick = {}
+                            )
+                        }
+                        viewModelHoras.error.value != null -> {
+                            DropdownMenuItem(
+                                text = { Text("Error al cargar horarios") },
+                                onClick = {}
+                            )
+                        }
+                        viewModelHoras.horas.value.isEmpty() -> {
+                            DropdownMenuItem(
+                                text = { Text("No hay horarios disponibles") },
+                                onClick = {}
+                            )
+                        }
+                        else -> {
+                            viewModelHoras.horas.value.forEach { h ->
+                                DropdownMenuItem(
+                                    text = { Text(h) },
+                                    onClick = {
+                                        hora = h
+                                        expandedHoras = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
             }
 
-            // Tipo de consulta
+            // ------------------------------------------
+            // TIPO DE CONSULTA
+            // ------------------------------------------
             OutlinedTextField(
                 value = tipoConsulta,
                 onValueChange = { tipoConsulta = it },
@@ -107,7 +228,9 @@ fun CitaCreateScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Notas opcionales
+            // ------------------------------------------
+            // NOTAS
+            // ------------------------------------------
             OutlinedTextField(
                 value = notas,
                 onValueChange = { notas = it },
@@ -115,59 +238,50 @@ fun CitaCreateScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Botón de guardado
+            // ------------------------------------------
+            // BOTÓN GUARDAR
+            // ------------------------------------------
             Button(
                 onClick = {
-                    if (
-                        dia.length == 2 && mes.length == 2 && anio.length == 4 &&
-                        hora.length in 1..2 && minuto.length == 2 &&
-                        tipoConsulta.isNotBlank()
-                    ) {
-                        val fechaHoraStr = "$dia/$mes/$anio $hora:$minuto"
-                        val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-                        val fechaHora = runCatching { sdf.parse(fechaHoraStr) }.getOrNull()
 
-                        if (fechaHora == null) {
-                            Toast.makeText(context, "Fecha u hora inválida", Toast.LENGTH_SHORT).show()
-                            return@Button
-                        }
-
-                        if (fechaHora.before(Date())) {
-                            Toast.makeText(context, "No se puede seleccionar una fecha pasada", Toast.LENGTH_SHORT).show()
-                            return@Button
-                        }
-
-                        val horaInt = hora.toIntOrNull() ?: 0
-                        if (horaInt !in 8..18) {
-                            Toast.makeText(context, "La hora debe estar entre 08:00 y 18:00", Toast.LENGTH_SHORT).show()
-                            return@Button
-                        }
-
-                        // Formato ISO para enviar al backend (.NET)
-                        val apiDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
-                            .format(fechaHora)
-
-                        val nuevaCita = Cita(
-                            idPaciente = idPaciente,
-                            fechaHora = apiDate,
-                            tipoConsulta = tipoConsulta,
-                            notas = notas.ifBlank { null },
-                            estatus = "A",
-                            duracionMin = 30
-                        )
-
-                        viewModel.registrarCita(nuevaCita)
-
-                    } else {
+                    if (fechaSeleccionadaMillis == null || hora.isBlank() || tipoConsulta.isBlank()) {
                         Toast.makeText(context, "Completa todos los campos requeridos", Toast.LENGTH_SHORT).show()
+                        return@Button
                     }
+
+                    // 🔥 Recuperar fecha sin desfase
+                    val epochDay = fechaSeleccionadaMillis!! / (24L * 60 * 60 * 1000)
+                    val fechaLocal = LocalDate.ofEpochDay(epochDay)
+
+                    // 🔥 Recuperar hora local segura
+                    val partes = hora.split(":")
+                    val horaInt = partes[0].toInt()
+                    val minutoInt = partes[1].toInt()
+
+                    val horaLocal = LocalTime.of(horaInt, minutoInt)
+
+                    // 🔥 Crear LocalDateTime final EXACTO
+                    val fechaHoraLocal: LocalDateTime = fechaLocal.atTime(horaLocal)
+
+                    // 🔥 Convertir a ISO para .NET (sin restar días)
+                    val apiDate = fechaHoraLocal.toString() + ":00"
+
+                    val nuevaCita = Cita(
+                        idPaciente = idPaciente,
+                        fechaHora = apiDate,
+                        tipoConsulta = tipoConsulta,
+                        notas = notas.ifBlank { null },
+                        estatus = "A",
+                        duracionMin = 30
+                    )
+
+                    viewModel.registrarCita(nuevaCita)
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Guardar Cita 💾")
             }
 
-            // Mostrar estado de la API
             estado?.let {
                 Text(
                     text = it,

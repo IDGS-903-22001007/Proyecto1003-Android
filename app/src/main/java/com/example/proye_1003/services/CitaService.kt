@@ -1,6 +1,7 @@
 package com.example.proye_1003.services
 
 import com.example.proye_1003.models.Cita
+import com.example.proye_1003.models.SlotResponse
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -31,5 +32,5 @@ interface CitaService {
 
     // 🔹 GET /api/Citas/slots -> Consultar horarios disponibles
     @GET("api/Citas/slots")
-    suspend fun obtenerSlots(@Query("dia") dia: String): Response<List<Map<String, Any>>>
+    suspend fun obtenerSlots(@Query("dia") dia: String): Response<List<SlotResponse>>
 }
