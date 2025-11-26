@@ -28,7 +28,6 @@ import retrofit2.Response
 import com.example.proye_1003.R
 import com.example.proye_1003.models.LoginRequest
 import com.example.proye_1003.models.Users
-import com.example.proye_1003.models.SesionUsuario
 import com.example.proye_1003.services.RetrofitClient
 
 @Composable

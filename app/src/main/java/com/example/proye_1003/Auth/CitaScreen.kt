@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.proye_1003.models.Cita
-import com.example.proye_1003.models.SesionUsuario
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

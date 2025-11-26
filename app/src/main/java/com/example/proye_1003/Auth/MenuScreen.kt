@@ -8,7 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.proye_1003.models.SesionUsuario
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

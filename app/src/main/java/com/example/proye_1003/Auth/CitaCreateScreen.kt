@@ -13,7 +13,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proye_1003.models.Cita
-import com.example.proye_1003.models.SesionUsuario
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -267,7 +266,7 @@ fun CitaCreateScreen(
                     val apiDate = fechaHoraLocal.toString() + ":00"
 
                     val nuevaCita = Cita(
-                        idPaciente = idPaciente,
+                        idPaciente = SesionUsuario.idUsuario ?: 0,
                         fechaHora = apiDate,
                         tipoConsulta = tipoConsulta,
                         notas = notas.ifBlank { null },
