@@ -1,10 +1,9 @@
-package com.example.proye_1003.Auth
+package com.example.proye_1003.citas.viewmodel
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.proye_1003.models.SlotResponse
 import com.example.proye_1003.services.RetrofitClient
 import kotlinx.coroutines.launch
 

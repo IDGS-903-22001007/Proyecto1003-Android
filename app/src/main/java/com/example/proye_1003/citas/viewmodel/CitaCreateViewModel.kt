@@ -1,33 +1,24 @@
-package com.example.proye_1003.Auth
+package com.example.proye_1003.citas.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.proye_1003.models.Cita
-import com.example.proye_1003.services.CitaService
 import com.example.proye_1003.services.RetrofitClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class CitaViewModel : ViewModel() {
-
-    private val citaService: CitaService by lazy {
-        RetrofitClient.citaService
-    }
-
-    private val _citas = MutableStateFlow<List<Cita>>(emptyList())
-    val citas: StateFlow<List<Cita>> = _citas
+class CitaCreateViewModel : ViewModel() {
 
     private val _estado = MutableStateFlow<String?>(null)
     val estado: StateFlow<String?> = _estado
 
-    /** 🔹 Cargar todas las citas del paciente */
-    fun cargarCitas() {
+    fun registrarCita(cita: Cita) {
         viewModelScope.launch {
             try {
-                val response = citaService.obtenerCitas()
+                val response = RetrofitClient.citaService.registrarCita(cita)
                 if (response.isSuccessful) {
-                    _citas.value = response.body() ?: emptyList()
+                    _estado.value = "✅ Cita registrada correctamente"
                 } else {
                     _estado.value = "❌ Error ${response.code()}: ${response.message()}"
                 }
@@ -35,11 +26,5 @@ class CitaViewModel : ViewModel() {
                 _estado.value = "⚠️ Error de conexión: ${e.message}"
             }
         }
-    }
-
-
-    /** 🔹 Limpiar citas en memoria (opcional) */
-    fun limpiarCitas() {
-        _citas.value = emptyList()
     }
 }

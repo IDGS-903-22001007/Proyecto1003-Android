@@ -9,8 +9,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.proye_1003.Auth.CitaCreateScreen
-import com.example.proye_1003.Auth.CitasScreen
+import com.example.proye_1003.citas.ui.CitaCreateScreen
+import com.example.proye_1003.citas.ui.CitasScreen
 import com.example.proye_1003.Auth.LoginScreen
 import com.example.proye_1003.Auth.MenuScreen
 import com.example.proye_1003.Auth.RegisterScreen

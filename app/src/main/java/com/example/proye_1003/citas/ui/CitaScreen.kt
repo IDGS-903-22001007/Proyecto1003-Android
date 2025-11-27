@@ -1,4 +1,4 @@
-package com.example.proye_1003.Auth
+package com.example.proye_1003.citas.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.proye_1003.Auth.BottomNavBar
+import com.example.proye_1003.citas.viewmodel.CitaViewModel
 import com.example.proye_1003.models.Cita
 
 @OptIn(ExperimentalMaterial3Api::class)
