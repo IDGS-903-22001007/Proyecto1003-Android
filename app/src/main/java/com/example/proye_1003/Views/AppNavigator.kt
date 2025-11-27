@@ -24,7 +24,7 @@ import com.example.proye_1003.services.RetrofitClient
 fun AppNavigator(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = "menu"
+        startDestination = "Login"
     ) {
 
         // 🔹 Login

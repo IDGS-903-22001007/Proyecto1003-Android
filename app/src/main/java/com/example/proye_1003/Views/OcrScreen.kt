@@ -43,6 +43,8 @@ data class MessageForAI(
 )
 
 
+// ------------------------------ Este es el modulo principal de la IA -------------------------
+
 @Composable
 fun OcrScreen(
     navController: NavController,
