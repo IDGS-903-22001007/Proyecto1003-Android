@@ -71,6 +71,8 @@ class GeminiService {
                 .build()
 
             Log.d("AI","Enviando request a Gemini")
+            Log.d("Gemini", "URL: $baseUrl")
+
 
             client.newCall(request).execute().use { res ->
 
