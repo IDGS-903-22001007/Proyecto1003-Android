@@ -34,7 +34,7 @@ data class MedicamentoSimple(
 }
 
 class GeminiService {
-    private val apiKey = "AIzaSyCiLYIU2e5yCutebUGxrCTeImyQezZ0F-A"
+    private val apiKey = "AIzaSyDw2xADlKwV8ixgkuOdcMoSeAy7uvKTABs"
 
     // Timeout aumentado
     private val client = OkHttpClient.Builder()

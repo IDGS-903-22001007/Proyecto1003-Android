@@ -1,1 +1,6 @@
-*.json
+# Android local config
+/local.properties
+*.keystore
+**/service_account.json
+*.pem
+*.p12
