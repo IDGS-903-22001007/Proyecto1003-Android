@@ -74,7 +74,7 @@ fun RegisterScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Fondo
+
             Image(
                 painter = painterResource(id = R.drawable.fondo_farmacia),
                 contentDescription = "Fondo",
@@ -87,7 +87,6 @@ fun RegisterScreen(
                     .background(Color.Black.copy(alpha = 0.45f))
             )
 
-            // Contenedor
             Box(
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
@@ -100,7 +99,6 @@ fun RegisterScreen(
                     .padding(30.dp)
             ) {
 
-                // 🔥🔥🔥 AQUI VA EL SCROLL 🔥🔥🔥
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
@@ -116,9 +114,6 @@ fun RegisterScreen(
                     )
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // ======================================
-                    //  Nombre
-                    // ======================================
                     OutlinedTextField(
                         value = nombre,
                         onValueChange = { input ->
@@ -135,9 +130,6 @@ fun RegisterScreen(
                     if (errorNombre) Text("El nombre es obligatorio", color = Color.Red, fontSize = 12.sp)
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // ======================================
-                    //  Apellido
-                    // ======================================
                     OutlinedTextField(
                         value = apellido,
                         onValueChange = { input ->
@@ -154,9 +146,6 @@ fun RegisterScreen(
                     if (errorApellido) Text("El apellido es obligatorio", color = Color.Red, fontSize = 12.sp)
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // ======================================
-                    // Teléfono (solo números)
-                    // ======================================
                     OutlinedTextField(
                         value = telefono,
                         onValueChange = { input ->
@@ -174,9 +163,6 @@ fun RegisterScreen(
                     if (errorTelefono) Text("El teléfono es obligatorio", color = Color.Red, fontSize = 12.sp)
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // ======================================
-                    //  Usuario
-                    // ======================================
                     OutlinedTextField(
                         value = usuario,
                         onValueChange = { input ->
@@ -193,9 +179,6 @@ fun RegisterScreen(
                     if (errorUsuario) Text("El usuario es obligatorio", color = Color.Red, fontSize = 12.sp)
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // ======================================
-                    //  Dirección
-                    // ======================================
                     OutlinedTextField(
                         value = direccion,
                         onValueChange = { input ->
@@ -212,9 +195,6 @@ fun RegisterScreen(
                     if (errorDireccion) Text("La dirección es obligatoria", color = Color.Red, fontSize = 12.sp)
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // ======================================
-                    //  Email
-                    // ======================================
                     OutlinedTextField(
                         value = email,
                         onValueChange = {
@@ -229,9 +209,6 @@ fun RegisterScreen(
                     if (errorEmail) Text("Correo inválido", color = Color.Red, fontSize = 12.sp)
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // ======================================
-                    //  Contraseña
-                    // ======================================
                     OutlinedTextField(
                         value = password,
                         onValueChange = {
@@ -247,9 +224,6 @@ fun RegisterScreen(
                     if (errorPassword) Text("Contraseña demasiado corta", color = Color.Red, fontSize = 12.sp)
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // ======================================
-                    //  Confirmar contraseña
-                    // ======================================
                     OutlinedTextField(
                         value = confirmPassword,
                         onValueChange = {
@@ -265,12 +239,8 @@ fun RegisterScreen(
                     if (errorConfirmPassword) Text("Las contraseñas no coinciden", color = Color.Red, fontSize = 12.sp)
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // ======================================
-                    //  Botón Registrar
-                    // ======================================
                     Button(
                         onClick = {
-                            // Activar errores visuales
                             errorNombre = nombre.isBlank()
                             errorApellido = apellido.isBlank()
                             errorTelefono = telefono.isBlank()
@@ -289,7 +259,7 @@ fun RegisterScreen(
                                 return@Button
                             }
 
-                            // Si todo está correcto → enviar registro
+
                             scope.launch {
                                 try {
                                     val request = RegisterRequest(

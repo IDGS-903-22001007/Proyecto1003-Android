@@ -20,7 +20,7 @@ fun MenuScreen(nav: NavController) {
                 title = { Text("Farmacia · Menú", fontWeight = FontWeight.SemiBold) }
             )
         },
-        bottomBar = { BottomNavBar(navController = nav) } // ✅ Barra inferior visible en todas las pantallas
+        bottomBar = { BottomNavBar(navController = nav) }
     ) { pad ->
         Column(
             modifier = Modifier

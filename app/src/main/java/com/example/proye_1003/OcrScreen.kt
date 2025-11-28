@@ -22,7 +22,7 @@ fun OcrScreen(viewModel: OcrViewModel = viewModel()) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Button(onClick = {
-            val file = File("") // aquí metes la ruta de prueba
+            val file = File("")
             viewModel.procesarImagen(
                 file,
                 onSuccess = { textoDetectado = it },

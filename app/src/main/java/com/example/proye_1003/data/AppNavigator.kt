@@ -14,6 +14,8 @@ import com.example.proye_1003.citas.ui.CitasScreen
 import com.example.proye_1003.Auth.LoginScreen
 import com.example.proye_1003.Auth.MenuScreen
 import com.example.proye_1003.Auth.RegisterScreen
+import com.example.proye_1003.citas.ui.CitaDetailScreen
+import com.example.proye_1003.citas.viewmodel.CitaViewModel
 import com.example.proye_1003.medicamentos.MedicamentoDetailScreen
 import com.example.proye_1003.medicamentos.MedicamentosListScreen
 import com.example.proye_1003.recordatorios.RecordatoriosViewModel
@@ -31,9 +33,6 @@ fun AppNavigator(navController: NavHostController) {
         startDestination = "login"
     ) {
 
-        // ---------------------------------------------------------
-        // LOGIN
-        // ---------------------------------------------------------
         composable(
             route = "login?message={message}",
             arguments = listOf(
@@ -62,9 +61,6 @@ fun AppNavigator(navController: NavHostController) {
             )
         }
 
-        // ---------------------------------------------------------
-        // REGISTRO
-        // ---------------------------------------------------------
         composable("register") {
             RegisterScreen(
                 onRegisterSuccess = { message ->
@@ -77,16 +73,10 @@ fun AppNavigator(navController: NavHostController) {
             )
         }
 
-        // ---------------------------------------------------------
-        // MENÚ PRINCIPAL
-        // ---------------------------------------------------------
         composable("menu") {
             MenuScreen(nav = navController)
         }
 
-        // ---------------------------------------------------------
-        // CITAS
-        // ---------------------------------------------------------
         composable("citas") {
             CitasScreen(
                 navController = navController,
@@ -101,9 +91,6 @@ fun AppNavigator(navController: NavHostController) {
             )
         }
 
-        // ---------------------------------------------------------
-        // MEDICAMENTOS
-        // ---------------------------------------------------------
         composable("meds") {
             MedicamentosListScreen(navController)
         }
@@ -121,9 +108,6 @@ fun AppNavigator(navController: NavHostController) {
             )
         }
 
-        // ---------------------------------------------------------
-        // RECORDATORIOS (LISTA)
-        // ---------------------------------------------------------
         composable("recordatorios") { backStackEntry ->
 
             val context = LocalContext.current
@@ -149,9 +133,6 @@ fun AppNavigator(navController: NavHostController) {
             )
         }
 
-        // ---------------------------------------------------------
-        // RECORDATORIOS (FORMULARIO)
-        // ---------------------------------------------------------
         composable(
             route = "recordatorioForm/{id}",
             arguments = listOf(
@@ -175,6 +156,25 @@ fun AppNavigator(navController: NavHostController) {
 
             RecordatorioFormScreen(
                 idRecordatorio = id,
+                navController = navController,
+                viewModel = viewModel
+            )
+        }
+
+        composable(
+            route = "citaDetalle/{idCita}",
+            arguments = listOf(
+                navArgument("idCita") { type = NavType.IntType }
+            )
+        ) { entry ->
+
+            val id = entry.arguments?.getInt("idCita") ?: 0
+
+            // Crear ViewModel
+            val viewModel: CitaViewModel = viewModel()
+
+            CitaDetailScreen(
+                idCita = id,
                 navController = navController,
                 viewModel = viewModel
             )

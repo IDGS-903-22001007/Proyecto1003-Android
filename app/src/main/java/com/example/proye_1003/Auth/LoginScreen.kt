@@ -33,7 +33,7 @@ import com.example.proye_1003.services.RetrofitClient
 @Composable
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
-    onLoginSuccess: () -> Unit, // 🚀 Navegación tras login exitoso
+    onLoginSuccess: () -> Unit,
     initialMessage: String? = null,
     onMessageShown: () -> Unit = {}
 ) {
@@ -55,7 +55,7 @@ fun LoginScreen(
         containerColor = Color.Transparent
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-            // Fondo
+
             Image(
                 painter = painterResource(id = R.drawable.fondo_farmacia),
                 contentDescription = "Fondo farmacia",
@@ -119,7 +119,6 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // Botón iniciar sesión
                     Button(
                         onClick = {
                             scope.launch {
@@ -137,7 +136,6 @@ fun LoginScreen(
                                     if (response.isSuccessful && response.body() != null) {
                                         val usuarioRespuesta = response.body()!!
 
-                                        // ✅ Guardamos el usuario en la sesión global
                                         SesionUsuario.idUsuario = usuarioRespuesta.id
                                         SesionUsuario.nombre = usuarioRespuesta.nombre
                                         SesionUsuario.correo = usuarioRespuesta.correo
@@ -147,7 +145,6 @@ fun LoginScreen(
                                             duration = SnackbarDuration.Long
                                         )
 
-                                        // 🚀 Navegar a la siguiente pantalla
                                         onLoginSuccess()
                                     } else {
                                         val errorMsg = response.errorBody()?.string()

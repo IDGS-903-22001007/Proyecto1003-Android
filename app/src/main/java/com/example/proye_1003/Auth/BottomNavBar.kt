@@ -12,7 +12,6 @@ fun BottomNavBar(navController: NavController) {
 
     NavigationBar {
 
-        // 🏠 Inicio
         NavigationBarItem(
             icon = { Text("🏠") },
             label = { Text("Inicio") },
@@ -24,7 +23,6 @@ fun BottomNavBar(navController: NavController) {
             }
         )
 
-        // 📅 Citas
         NavigationBarItem(
             icon = { Text("📅") },
             label = { Text("Citas") },
@@ -32,7 +30,6 @@ fun BottomNavBar(navController: NavController) {
             onClick = { navController.navigate("citas") }
         )
 
-        // 💊 Medicamentos
         NavigationBarItem(
             icon = { Text("💊") },
             label = { Text("Medicamentos") },
@@ -40,7 +37,6 @@ fun BottomNavBar(navController: NavController) {
             onClick = { navController.navigate("meds") }
         )
 
-        // 🔔 Recordatorios
         NavigationBarItem(
             icon = { Text("🔔") },
             label = { Text("Recordatorios") },
@@ -48,16 +44,14 @@ fun BottomNavBar(navController: NavController) {
             onClick = { navController.navigate("recordatorios") }
         )
 
-        // 🚪 Cerrar sesión
         NavigationBarItem(
             icon = { Text("🚪") },
             label = { Text("Salir") },
             selected = false,
             onClick = {
-                // 1) Limpiar solo datos en memoria
+
                 SesionUsuario.limpiarSesion()
 
-                // 2) Volver a login limpiando el backstack
                 navController.navigate("login") {
                     popUpTo("login") { inclusive = true }
                 }

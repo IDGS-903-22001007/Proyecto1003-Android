@@ -16,7 +16,6 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.example.proye_1003.data.AppNavigator
 
-// 🔔 FUNCIÓN QUE CREA EL CANAL DE NOTIFICACIONES
 fun crearCanalRecordatorios(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val name = "Recordatorios de Medicamentos"
@@ -24,7 +23,7 @@ fun crearCanalRecordatorios(context: Context) {
         val importance = NotificationManager.IMPORTANCE_HIGH
 
         val channel = NotificationChannel(
-            CHANNEL_RECORDATORIOS, // <- constante desde Constants.kt
+            CHANNEL_RECORDATORIOS,
             name,
             importance
         ).apply {
@@ -41,10 +40,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 🔔 1) Crear el canal de notificaciones
         crearCanalRecordatorios(this)
 
-        // 🛑 2) Solicitar permiso POST_NOTIFICATIONS (Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
                     this,
@@ -59,7 +56,6 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // 🎨 3) Renderizar UI (tu contenido original)
         setContent {
             MaterialTheme {
                 Surface {

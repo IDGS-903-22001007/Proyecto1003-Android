@@ -21,7 +21,9 @@ class CitaViewModel : ViewModel() {
     private val _estado = MutableStateFlow<String?>(null)
     val estado: StateFlow<String?> = _estado
 
-    /** 🔹 Cargar todas las citas del paciente */
+    private val _citaDetalle = MutableStateFlow<Cita?>(null)
+    val citaDetalle: StateFlow<Cita?> = _citaDetalle
+
     fun cargarCitas() {
         viewModelScope.launch {
             try {
@@ -37,9 +39,40 @@ class CitaViewModel : ViewModel() {
         }
     }
 
-
-    /** 🔹 Limpiar citas en memoria (opcional) */
-    fun limpiarCitas() {
-        _citas.value = emptyList()
+    fun cargarCitaPorId(id: Int) {
+        viewModelScope.launch {
+            try {
+                val response = citaService.obtenerCitaPorId(id)
+                if (response.isSuccessful) {
+                    _citaDetalle.value = response.body()
+                } else {
+                    _estado.value = "❌ Error ${response.code()}: ${response.message()}"
+                }
+            } catch (e: Exception) {
+                _estado.value = "⚠️ Error de conexión: ${e.message}"
+            }
+        }
     }
+
+    fun limpiarDetalle() {
+        _citaDetalle.value = null
+    }
+
+    fun eliminarCita(idCita: Int) {
+        viewModelScope.launch {
+            try {
+                val response = citaService.eliminarCita(idCita)
+
+                if (response.isSuccessful) {
+                    _citas.value = _citas.value.filterNot { it.idCita == idCita }
+                    _estado.value = "Cita eliminada correctamente"
+                } else {
+                    _estado.value = "Error al eliminar cita (${response.code()})"
+                }
+            } catch (e: Exception) {
+                _estado.value = "Error de conexión: ${e.message}"
+            }
+        }
+    }
+
 }

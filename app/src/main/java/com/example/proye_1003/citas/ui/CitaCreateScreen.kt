@@ -30,9 +30,6 @@ fun CitaCreateScreen(
 ) {
     val idPaciente = SesionUsuario.idUsuario ?: 0
 
-    // ------------------------------------------
-    // ESTADOS
-    // ------------------------------------------
     var fechaTexto by remember { mutableStateOf("") }
     var fechaSeleccionadaMillis by remember { mutableStateOf<Long?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
@@ -44,12 +41,8 @@ fun CitaCreateScreen(
     val estado by viewModel.estado.collectAsState()
     val context = LocalContext.current
 
-    // ViewModel de horarios
     val viewModelHoras: CitaHorariosViewModel = viewModel()
 
-    // ------------------------------------------
-    // Rango de fechas permitido
-    // ------------------------------------------
     val today = LocalDate.now()
     val maxDate = today.plusMonths(4)
 
@@ -65,9 +58,6 @@ fun CitaCreateScreen(
         }
     )
 
-    // ------------------------------------------
-    // DATE PICKER
-    // ------------------------------------------
     if (showDatePicker) {
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
@@ -76,7 +66,6 @@ fun CitaCreateScreen(
                     val millis = datePickerState.selectedDateMillis
                     if (millis != null) {
 
-                        // 🔥 Método seguro de conversión sin desfases
                         val epochDay = millis / (24L * 60 * 60 * 1000)
                         val fechaLocal = LocalDate.ofEpochDay(epochDay)
 
@@ -103,9 +92,6 @@ fun CitaCreateScreen(
         }
     }
 
-    // ------------------------------------------
-    // Cuando cambia la fecha → cargar horas disponibles
-    // ------------------------------------------
     LaunchedEffect(fechaSeleccionadaMillis) {
         if (fechaSeleccionadaMillis != null) {
 
@@ -122,9 +108,6 @@ fun CitaCreateScreen(
         }
     }
 
-    // ------------------------------------------
-    // UI
-    // ------------------------------------------
     Scaffold(
         topBar = {
             TopAppBar(
@@ -145,9 +128,6 @@ fun CitaCreateScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            // ------------------------------------------
-            // FECHA
-            // ------------------------------------------
             OutlinedTextField(
                 value = fechaTexto,
                 onValueChange = {},
@@ -161,9 +141,6 @@ fun CitaCreateScreen(
                 }
             )
 
-            // ------------------------------------------
-            // HORAS DISPONIBLES - DROPDOWN
-            // ------------------------------------------
             var expandedHoras by remember { mutableStateOf(false) }
 
             ExposedDropdownMenuBox(
@@ -219,19 +196,49 @@ fun CitaCreateScreen(
                 }
             }
 
-            // ------------------------------------------
-            // TIPO DE CONSULTA
-            // ------------------------------------------
-            OutlinedTextField(
-                value = tipoConsulta,
-                onValueChange = { tipoConsulta = it },
-                label = { Text("Tipo de consulta") },
-                modifier = Modifier.fillMaxWidth()
+            var expandedTipo by remember { mutableStateOf(false) }
+
+            val opcionesTipoConsulta = listOf(
+                "Consulta general",
+                "Control",
+                "Receta / Seguimiento"
             )
 
-            // ------------------------------------------
-            // NOTAS
-            // ------------------------------------------
+            ExposedDropdownMenuBox(
+                expanded = expandedTipo,
+                onExpandedChange = { expandedTipo = it },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                OutlinedTextField(
+                    value = tipoConsulta,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Tipo de consulta") },
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth(),
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expandedTipo)
+                    }
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expandedTipo,
+                    onDismissRequest = { expandedTipo = false }
+                ) {
+                    opcionesTipoConsulta.forEach { opcion ->
+                        DropdownMenuItem(
+                            text = { Text(opcion) },
+                            onClick = {
+                                tipoConsulta = opcion
+                                expandedTipo = false
+                            }
+                        )
+                    }
+                }
+            }
+
             OutlinedTextField(
                 value = notas,
                 onValueChange = { notas = it },
@@ -239,9 +246,6 @@ fun CitaCreateScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // ------------------------------------------
-            // BOTÓN GUARDAR
-            // ------------------------------------------
             Button(
                 onClick = {
 
@@ -273,7 +277,12 @@ fun CitaCreateScreen(
                         tipoConsulta = tipoConsulta,
                         notas = notas.ifBlank { null },
                         estatus = "A",
-                        duracionMin = 30
+                        duracionMin = 30,
+                        nombrePaciente = "",
+                        observaciones = null,
+                        diagnostico = null,
+                        medicamentos = null
+
                     )
 
                     viewModel.registrarCita(nuevaCita)
