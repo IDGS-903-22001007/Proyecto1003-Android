@@ -100,12 +100,6 @@ fun CitaDetailScreen(
     }
 }
 
-
-
-
-// ===================================================================
-// COMPONENTE VISUAL REUTILIZABLE
-// ===================================================================
 @Composable
 fun DetailItem(titulo: String, valor: String) {
     Column(modifier = Modifier.padding(vertical = 6.dp)) {

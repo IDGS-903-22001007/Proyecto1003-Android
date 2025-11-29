@@ -44,6 +44,14 @@ fun BottomNavBar(navController: NavController) {
             onClick = { navController.navigate("recordatorios") }
         )
 
+        // === 📷 OCR ===
+        NavigationBarItem(
+            icon = { Text("📷") },
+            label = { Text("OCR") },
+            selected = false,
+            onClick = { navController.navigate("ocr") }
+        )
+
         NavigationBarItem(
             icon = { Text("🚪") },
             label = { Text("Salir") },

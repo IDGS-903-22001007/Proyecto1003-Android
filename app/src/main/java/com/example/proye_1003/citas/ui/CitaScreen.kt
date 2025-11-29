@@ -19,7 +19,6 @@ import com.example.proye_1003.Auth.BottomNavBar
 import com.example.proye_1003.citas.viewmodel.CitaViewModel
 import com.example.proye_1003.models.Cita
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CitasScreen(

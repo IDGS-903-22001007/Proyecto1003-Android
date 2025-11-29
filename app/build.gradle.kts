@@ -5,6 +5,9 @@ plugins {
 
     // NECESARIO PARA Room (kapt)
     kotlin("kapt")
+
+    // NECESARIO PARA los modelos IA/OCR de tu compañero
+    kotlin("plugin.serialization") version "1.9.10"
 }
 
 android {
@@ -54,10 +57,32 @@ android {
 
 dependencies {
 
+    // -----------------------------
+    // 🔵 DEPENDENCIAS NUEVAS
+    // -----------------------------
+
+    // LiveData en Compose (necesario por chat y recomendaciones)
+    implementation("androidx.compose.runtime:runtime-livedata")
+
+    // JSON simple usado por tu compañero
+    implementation("org.json:json:20230227")
+
+    // Kotlin Serialization (IA, OCR y JSON modernos)
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+
+
+    // ML KIT — Reconocimiento de texto con IA nueva (no Firebase)
+    implementation("com.google.mlkit:text-recognition:16.0.0")
+
+    // Para tasks.await()
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
+
+
+
     // Navigation Compose
     implementation("androidx.navigation:navigation-compose:2.9.5")
 
-    // Retrofit
+    // Retrofit + Gson + OkHttp
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
@@ -66,7 +91,7 @@ dependencies {
     // Coil
     implementation("io.coil-kt:coil-compose:2.4.0")
 
-    // Coroutines (solo una versión)
+    // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
     // Compose BOM
@@ -100,7 +125,7 @@ dependencies {
     implementation("io.github.vanpra.compose-material-dialogs:core:0.9.0")
     implementation("io.github.vanpra.compose-material-dialogs:datetime:0.9.0")
 
-    // Room (CORREGIDO)
+    // Room
     implementation("androidx.room:room-runtime:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")

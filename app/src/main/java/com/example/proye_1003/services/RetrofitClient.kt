@@ -1,6 +1,7 @@
 package com.example.proye_1003.services
 
 import com.example.proye_1003.Auth.AuthApiService
+import com.example.proye_1003.ia.services.RecomendacionService
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -47,4 +48,9 @@ object RetrofitClient {
 
     // (opcional) Si alguna vez necesitas el retrofit crudo:
     val retrofitInstance: Retrofit get() = retrofit
+
+    val recomendacionService: RecomendacionService by lazy {
+        retrofit.create(RecomendacionService::class.java)
+    }
+
 }
