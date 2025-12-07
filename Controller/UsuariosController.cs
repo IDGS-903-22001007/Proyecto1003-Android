@@ -1,6 +1,7 @@
 ﻿using FarmaciaApi.Data;
+using FarmaciaApi.Dtos;
 using FarmaciaApi.Models;
-using FarmaciaApi.Security; // <— AÑADE ESTO
+using FarmaciaApi.Security; 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace FarmaciaApi.Controllers
 
         public UsuariosController(FarmaciaContext context) => _context = context;
 
-        // GET: api/usuarios
+        
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -38,7 +39,7 @@ namespace FarmaciaApi.Controllers
             return Ok(lista);
         }
 
-        // GET: api/usuarios/5
+        
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetOne(int id)
         {
@@ -60,7 +61,7 @@ namespace FarmaciaApi.Controllers
             });
         }
 
-        // POST: api/usuarios
+        
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] UsuarioCreateDto dto)
         {
@@ -96,7 +97,7 @@ namespace FarmaciaApi.Controllers
             });
         }
 
-        // PUT: api/usuarios/5
+        
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] UsuarioUpdateDto dto)
         {
@@ -124,7 +125,7 @@ namespace FarmaciaApi.Controllers
             return NoContent();
         }
 
-        // DELETE: api/usuarios/5
+        
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {

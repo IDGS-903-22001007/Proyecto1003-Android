@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FarmaciaApi.DTOs
+namespace FarmaciaApi.Dtos
 {
     public class CreateMedicamentoDto
     {

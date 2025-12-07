@@ -18,7 +18,7 @@ namespace FarmaciaApi.Models
         [MaxLength(1000)]
         public string? Descripcion { get; set; }
 
-        // Texto largo
+        
         [MaxLength(2000)]
         public string? Beneficios { get; set; }
 
@@ -29,13 +29,13 @@ namespace FarmaciaApi.Models
         public string? Advertencias { get; set; }
 
         [MaxLength(60)]
-        public string? Tipo { get; set; } // tableta, jarabe, etc.
+        public string? Tipo { get; set; } 
 
         [Precision(18, 2)]
         [Column(TypeName = "decimal(18,2)")]
         public decimal Precio { get; set; }
 
-        // 👉 Solo URL (no archivos)
+        
         [MaxLength(300)]
         public string? FotoUrl { get; set; }
 

@@ -1,7 +1,11 @@
 ﻿using FarmaciaApi.Data;
-using FarmaciaApi.Security; // <— AÑADE ESTO
+using FarmaciaApi.Models;
+using FarmaciaApi.Security;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace FarmaciaApi.Controllers
@@ -11,8 +15,13 @@ namespace FarmaciaApi.Controllers
     public class AuthController : ControllerBase
     {
         private readonly FarmaciaContext _context;
-        public AuthController(FarmaciaContext context) => _context = context;
 
+        public AuthController(FarmaciaContext context)
+        {
+            _context = context;
+        }
+
+        // Método de login
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest req)
         {
@@ -27,6 +36,20 @@ namespace FarmaciaApi.Controllers
             bool ok = PasswordHasherUtil.Verify(req.Contrasena, usr.ContrasenaHash);
             if (!ok) return Unauthorized("Contraseña incorrecta.");
 
+            
+            var claims = new[]
+            {
+        new Claim(ClaimTypes.Name, usr.User),
+        new Claim(ClaimTypes.NameIdentifier, usr.Id.ToString()),
+        new Claim(ClaimTypes.Role, usr.Rol) 
+    };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
             return Ok(new
             {
                 message = "Login exitoso",
@@ -37,11 +60,20 @@ namespace FarmaciaApi.Controllers
                 rol = usr.Rol
             });
         }
+
+        
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return Ok(new { message = "Logout exitoso" });
+        }
     }
 
+    
     public class LoginRequest
     {
-        public string User { get; set; } = "";
-        public string Contrasena { get; set; } = "";
+        public string User { get; set; }
+        public string Contrasena { get; set; }
     }
 }

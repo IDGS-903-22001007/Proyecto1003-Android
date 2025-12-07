@@ -4,6 +4,7 @@ using FarmaciaApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FarmaciaApi.Migrations
 {
     [DbContext(typeof(FarmaciaContext))]
-    partial class FarmaciaContextModelSnapshot : ModelSnapshot
+    [Migration("20251118233334_AddProveedor")]
+    partial class AddProveedor
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,16 +25,13 @@ namespace FarmaciaApi.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Cita", b =>
+            modelBuilder.Entity("FarmaciaApi.Models.Cita", b =>
                 {
                     b.Property<int>("IdCita")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdCita"));
-
-                    b.Property<string>("Diagnostico")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DuracionMin")
                         .ValueGeneratedOnAdd()
@@ -51,17 +51,7 @@ namespace FarmaciaApi.Migrations
                     b.Property<int>("IdPaciente")
                         .HasColumnType("int");
 
-                    b.Property<string>("Medicamentos")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NombrePaciente")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Notas")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Observaciones")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TipoConsulta")
@@ -141,85 +131,6 @@ namespace FarmaciaApi.Migrations
                     b.ToTable("Medicamentos");
                 });
 
-            modelBuilder.Entity("FarmaciaApi.Models.Pedido", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClienteNombre")
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<string>("CoordenadasEntrega")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<decimal>("CostoEnvio")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("DireccionEntrega")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<string>("Estado")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("Total")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Pedidos");
-                });
-
-            modelBuilder.Entity("FarmaciaApi.Models.PedidoDetalle", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Cantidad")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MedicamentoId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("MedicamentoNombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("PedidoId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("PrecioUnitario")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("Subtotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MedicamentoId");
-
-                    b.HasIndex("PedidoId");
-
-                    b.ToTable("PedidoDetalles");
-                });
-
             modelBuilder.Entity("FarmaciaApi.Models.Proveedor", b =>
                 {
                     b.Property<int>("Id")
@@ -245,9 +156,6 @@ namespace FarmaciaApi.Migrations
 
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("HistorialPedidosJson")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
@@ -338,30 +246,6 @@ namespace FarmaciaApi.Migrations
                     b.HasOne("FarmaciaApi.Models.Proveedor", null)
                         .WithMany("Medicamentos")
                         .HasForeignKey("ProveedorId");
-                });
-
-            modelBuilder.Entity("FarmaciaApi.Models.PedidoDetalle", b =>
-                {
-                    b.HasOne("FarmaciaApi.Models.Medicamento", "Medicamento")
-                        .WithMany()
-                        .HasForeignKey("MedicamentoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FarmaciaApi.Models.Pedido", "Pedido")
-                        .WithMany("Detalles")
-                        .HasForeignKey("PedidoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Medicamento");
-
-                    b.Navigation("Pedido");
-                });
-
-            modelBuilder.Entity("FarmaciaApi.Models.Pedido", b =>
-                {
-                    b.Navigation("Detalles");
                 });
 
             modelBuilder.Entity("FarmaciaApi.Models.Proveedor", b =>

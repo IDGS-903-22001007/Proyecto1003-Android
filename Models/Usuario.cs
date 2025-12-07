@@ -22,18 +22,15 @@ namespace FarmaciaApi.Models
         [Required, MaxLength(120), EmailAddress]
         public string Correo { get; set; } = string.Empty;
 
-        // Username
         [Required, MaxLength(50)]
         public string User { get; set; } = string.Empty;
 
         [Required, MaxLength(200)]
         public string Direccion { get; set; } = string.Empty;
 
-        // Guardar hash, no texto plano
         [Required]
         public string ContrasenaHash { get; set; } = string.Empty;
 
-        // Para tus módulos (admin/user). Puedes usar enum si prefieres.
         [Required, MaxLength(20)]
         public string Rol { get; set; } = "user";
 

@@ -1,5 +1,5 @@
 ﻿using FarmaciaApi.Data;
-using FarmaciaApi.DTOs;
+using FarmaciaApi.Dtos;
 using FarmaciaApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +17,7 @@ namespace FarmaciaApi.Controllers
             _context = context;
         }
 
-        // GET: api/Medicamentos
+        
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -43,7 +43,7 @@ namespace FarmaciaApi.Controllers
             return Ok(lista);
         }
 
-        // GET: api/Medicamentos/5
+        
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetOne(int id)
         {
@@ -52,7 +52,7 @@ namespace FarmaciaApi.Controllers
             return Ok(m);
         }
 
-        // POST: api/Medicamentos  (JSON)
+        
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateMedicamentoDto dto)
         {
@@ -78,7 +78,7 @@ namespace FarmaciaApi.Controllers
             return CreatedAtAction(nameof(GetOne), new { id = med.Id }, med);
         }
 
-        // PUT: api/Medicamentos/5  (JSON)
+        
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateMedicamentoDto dto)
         {
@@ -101,7 +101,7 @@ namespace FarmaciaApi.Controllers
             return Ok(med);
         }
 
-        // DELETE: api/Medicamentos/5
+        
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -113,7 +113,7 @@ namespace FarmaciaApi.Controllers
             return NoContent();
         }
 
-        // PATCH: api/Medicamentos/5/toggle
+        
         [HttpPatch("{id:int}/toggle")]
         public async Task<IActionResult> Toggle(int id)
         {

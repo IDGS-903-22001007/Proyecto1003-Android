@@ -1,4 +1,4 @@
-﻿namespace FarmaciaApi.Models
+﻿namespace FarmaciaApi.Dtos
 {
     public class UsuarioCreateDto
     {
